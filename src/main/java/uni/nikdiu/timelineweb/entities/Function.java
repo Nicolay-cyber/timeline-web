@@ -27,21 +27,23 @@ public class Function {
     private Double endPoint;
 
     @Column(name = "expression")
-    private String expression;
+    private String stringExpression;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_parameter_id")
     private Parameter parent_parameter_id;
-/*
-    @OneToMany(mappedBy = "function", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Parameter> relatedParameters;
 
     @Transient
     private List<String> expression;
 
     @PostConstruct
-    private void setExpression() {
-        expression = Arrays.asList(rowExpression.split(" "));
+    private void extractExpression() {
+        expression = Arrays.asList(stringExpression.split(" "));
     }
+/*
+    @OneToMany(mappedBy = "function", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Parameter> relatedParameters;
+
+
 */
 }

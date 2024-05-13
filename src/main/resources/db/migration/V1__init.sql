@@ -32,3 +32,20 @@ VALUES ((SELECT id FROM parameters WHERE abbreviation = 'T'), 32500, 33530, '-6.
 INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
 VALUES ((SELECT id FROM parameters WHERE abbreviation = 'T'), 33530, 47100,
         '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * t ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * t ^ 3 - 0.4342 * t ^ 2 + 6772.5 * t ^  - 4 * 10 ^ 07');
+
+INSERT INTO parameters (name, description, abbreviation)
+VALUES ('Test parameter A', 'Test parameter depended on temperature and time', 'Ta');
+
+INSERT INTO parameters (name, description, abbreviation)
+VALUES ('Test parameter B', 'Test parameter depended on temperature and parameter A', 'Tb');
+
+INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
+VALUES ((SELECT id FROM parameters WHERE abbreviation = 'Ta'), 0, 47100,
+        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T ^  - 4 * 10 ^ 07');
+
+INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
+VALUES ((SELECT id FROM parameters WHERE abbreviation = 'Tb'), 0, 20000,
+        '-1 * 10 ^ -20 * Ta ^ 6 + 3 * 10 ^ -15 * Ta ^ 5 - 3 * 10 ^ -10 * Ta ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T ^  - 4 * 10 ^ 07');
+INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
+VALUES ((SELECT id FROM parameters WHERE abbreviation = 'Tb'), 20000, 47100,
+        '-1 * 10 ^ -20 * T ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * T ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T ^  - 4 * 10 ^ 07');
