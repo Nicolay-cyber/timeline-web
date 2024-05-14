@@ -4,15 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParameterDto {
+public class FunctionDto {
     private Long id;
-    private String name;
-    private String description;
-    private String abbreviation;
-    private List<FunctionDto> functions;
-
+    private Double startPoint;
+    private Double endPoint;
+    private String parentParameter;
+    private String expression;
 }
