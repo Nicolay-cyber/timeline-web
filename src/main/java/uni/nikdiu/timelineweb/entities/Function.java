@@ -5,8 +5,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -15,6 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Function {
+    @Transient
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -31,7 +37,13 @@ public class Function {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_parameter_id")
-    private Parameter parent_parameter_id;
+    private Parameter parentParameter;
+
+    @ManyToMany
+    @JoinTable(name = "parameter_function",
+            joinColumns = @JoinColumn(name = "parameter_id"),
+            inverseJoinColumns = @JoinColumn(name = "function_id"))
+    private List<Parameter> relatedParameters;
 
     @Transient
     private List<String> expression;
@@ -39,6 +51,11 @@ public class Function {
     @PostConstruct
     private void extractExpression() {
         expression = Arrays.asList(stringExpression.split(" "));
+    }
+
+    @PostConstruct
+    private void check() {
+        log.debug("expression " + expression);
     }
 /*
     @OneToMany(mappedBy = "function", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

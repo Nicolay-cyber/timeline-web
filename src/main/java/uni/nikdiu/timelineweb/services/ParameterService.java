@@ -11,6 +11,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ParameterService {
     private final ParameterRepository parameterRepository;
+
+    public List<Parameter> getAllParameters() {
+        return parameterRepository.findAll();
+    }
+    public Parameter getParameterById(Long id) {
+        return parameterRepository.findById(id).orElseThrow(() -> new RuntimeException("Parameter not found"));
+    }
+    public Parameter getParameterByAbbreviation(String s) {
+        return parameterRepository.findByAbbreviation(s);
+    }
+
     /*public Parameter getParameter(Long id, Double step) {
         Parameter parameter = parameterRepository.findById(id).orElseThrow(() -> new RuntimeException("Parameter not found"));
         replaceVariables(parameter);
@@ -35,7 +46,4 @@ public class ParameterService {
         }
     }
 */
-    public List<Parameter> getAllParameters() {
-        return parameterRepository.findAll();
-    }
 }

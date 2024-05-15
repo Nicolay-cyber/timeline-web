@@ -16,36 +16,61 @@ CREATE TABLE if not exists functions
     expression          TEXT   NOT NULL,
     parent_parameter_id BIGINT,
     FOREIGN KEY (parent_parameter_id) REFERENCES parameters (id)
-
 );
 
-INSERT INTO parameters (name, description, abbreviation)
-VALUES ('Temperature', 'Surface temperature in degrees Celsius', 'T');
+-- Create the junction table for many-to-many relationship
+CREATE TABLE if not exists parameter_function
+(
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    parameter_id        BIGINT NOT NULL,
+    function_id         BIGINT NOT NULL,
+    FOREIGN KEY (parameter_id) REFERENCES parameters (id),
+    FOREIGN KEY (function_id) REFERENCES functions (id)
+    );
 
-INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
-VALUES ((SELECT id FROM parameters WHERE abbreviation = 'T'), 0, 32500,
+
+
+INSERT INTO parameters (id, name, description, abbreviation)
+VALUES (1, 'Temperature', 'Surface temperature in degrees Celsius', 'T');
+
+INSERT INTO parameters (id, name, description, abbreviation)
+VALUES (2, 'Test parameter A', 'Test parameter depended on temperature and time', 'Ta');
+
+INSERT INTO parameters (id, name, description, abbreviation)
+VALUES (3, 'Test parameter B', 'Test parameter depended on temperature and parameter A', 'Tb');
+
+
+
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (1, 1, 0, 32500,
         '3 * 10 ^ -24 * t ^ 6 - 9 * 10 ^ -19 * t ^ 5 + 7 * 10 ^ -14 * t ^ 4 - 2 * 10 ^ -09 * t ^ 3 + 4 * 10 ^ -05 * t ^ 2 - 0.2782 * t + 2996.3');
 
-INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
-VALUES ((SELECT id FROM parameters WHERE abbreviation = 'T'), 32500, 33530, '-6.5497 * t + 219824');
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (2, 1, 32500, 33530, '-6.5497 * t + 219824');
 
-INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
-VALUES ((SELECT id FROM parameters WHERE abbreviation = 'T'), 33530, 47100,
-        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * t ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * t ^ 3 - 0.4342 * t ^ 2 + 6772.5 * t ^  - 4 * 10 ^ 07');
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (3, 1, 33530, 47100,
+        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * t ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * t ^ 3 - 0.4342 * t ^ 2 + 6772.5 * t - 4 * 10 ^ 07');
 
-INSERT INTO parameters (name, description, abbreviation)
-VALUES ('Test parameter A', 'Test parameter depended on temperature and time', 'Ta');
 
-INSERT INTO parameters (name, description, abbreviation)
-VALUES ('Test parameter B', 'Test parameter depended on temperature and parameter A', 'Tb');
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (4, 2, 0, 47100,
+        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
 
-INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
-VALUES ((SELECT id FROM parameters WHERE abbreviation = 'Ta'), 0, 47100,
-        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T ^  - 4 * 10 ^ 07');
 
-INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
-VALUES ((SELECT id FROM parameters WHERE abbreviation = 'Tb'), 0, 20000,
-        '-1 * 10 ^ -20 * Ta ^ 6 + 3 * 10 ^ -15 * Ta ^ 5 - 3 * 10 ^ -10 * Ta ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T ^  - 4 * 10 ^ 07');
-INSERT INTO functions (parent_parameter_id, start_point, end_point, expression)
-VALUES ((SELECT id FROM parameters WHERE abbreviation = 'Tb'), 20000, 47100,
-        '-1 * 10 ^ -20 * T ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * T ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T ^  - 4 * 10 ^ 07');
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (5, 3, 0, 20000,
+        '-1 * 10 ^ -20 * Ta ^ 6 + 3 * 10 ^ -15 * Ta ^ 5 - 3 * 10 ^ -10 * Ta ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (6, 3, 20000, 47100,
+        '-1 * 10 ^ -20 * T ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * T ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
+
+
+INSERT INTO parameter_function (function_id, parameter_id)
+VALUES (4, 1);
+INSERT INTO parameter_function (function_id, parameter_id)
+VALUES (5, 1);
+INSERT INTO parameter_function (function_id, parameter_id)
+VALUES (5, 2);
+INSERT INTO parameter_function (function_id, parameter_id)
+VALUES (6, 2);

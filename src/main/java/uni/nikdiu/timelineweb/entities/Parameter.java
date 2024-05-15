@@ -29,7 +29,7 @@ public class Parameter {
     @Column(name = "abbreviation", unique = true)
     private String abbreviation;
 
-    @OneToMany(mappedBy = "parent_parameter_id", cascade = {CascadeType.PERSIST, CascadeType.REMOVE},fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE},fetch = FetchType.LAZY)
     private List<Function> functions;
 
 }

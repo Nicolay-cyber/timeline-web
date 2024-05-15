@@ -14,7 +14,7 @@ public class FunctionConvector {
                 function.getId(),
                 function.getStartPoint(),
                 function.getEndPoint(),
-                function.getParent_parameter_id().getName(),
+                function.getParentParameter().getName(),
                 function.getStringExpression());
     }
 }
