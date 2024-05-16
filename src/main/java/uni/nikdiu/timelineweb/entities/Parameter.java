@@ -1,13 +1,11 @@
 package uni.nikdiu.timelineweb.entities;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
 
 @Entity
 @Table(name = "parameters")
@@ -29,7 +27,7 @@ public class Parameter {
     @Column(name = "abbreviation", unique = true)
     private String abbreviation;
 
-    @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE},fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private List<Function> functions;
 
 }

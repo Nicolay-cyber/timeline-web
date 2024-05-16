@@ -1,45 +1,40 @@
 package uni.nikdiu.timelineweb.models;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.stereotype.Component;
 import uni.nikdiu.timelineweb.convectors.MathNotationConvector;
 import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
-import uni.nikdiu.timelineweb.services.ParameterService;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Stack;
+
 @Component
 @AllArgsConstructor
 public class Calculator {
-
-    private final ParameterService parameterService;
     public Double calculate(
             List<String> infixExpression,
             List<Function> relatedFunctions,
+            List<Parameter> relatedParameters,
             Double step
     ) {
-
         MathNotationConvector converter = new MathNotationConvector();
         List<String> PostfixExpression = converter.toPostfix(infixExpression);
         List<String> operators = converter.getOperators();
         Stack<Double> stack = new Stack<>();
-        PostfixExpression.forEach(token -> {System.out.print(token+" ");});
-        System.out.println();
+
         for (String token : PostfixExpression) {
             if (!token.matches("-?\\d+(\\.\\d+)?") && !operators.contains(token)) { //It's not a number and not an operator
                 if (token.matches("t")) {
                     token = String.valueOf(step);
                 } else { //It's parameter variable
-                    System.out.println("Replace parameter " + token);
-                    token = replaceParameter(token, relatedFunctions, step);
-                    System.out.println("Replaced parameter " +token);
+                    token = replaceParameter(token, relatedParameters, relatedFunctions, step);
                 }
             }
-
+            if (token == null) {
+                return null;
+            }
             switch (token) {
                 case "+":
                     stack.push(stack.pop() + stack.pop());
@@ -93,22 +88,19 @@ public class Calculator {
         return stack.pop();
     }
 
-    private String replaceParameter(String token, List<Function> relatedFunctions, Double step) {
-        Optional<Parameter> relatedParameter = Optional.ofNullable(parameterService.getParameterByAbbreviation(token));
-        if (relatedParameter.isPresent()) {
-            Optional<Function> relatedFunction = relatedFunctions.stream()
-                    .filter(f -> f.getParentParameter().equals(
-                            relatedParameter.get().getId()) 
-                            && f.getStartPoint() <= step 
-                            && f.getEndPoint() >= step)
-                    .findFirst();
+    private String replaceParameter(String parameterAbbr, List<Parameter> relatedParameters, List<Function> relatedFunctions, Double step) {
+        Parameter relatedParameter = relatedParameters.stream().filter(p -> p.getAbbreviation().equals(parameterAbbr)).findFirst().orElseThrow();
 
-            if (relatedFunction.isPresent()) {
-                Double innerExpressionResult = calculate(relatedFunction.get().getExpression(), relatedFunctions, step);
-                return String.valueOf(innerExpressionResult);
-            }
-            return null;
-        }
-        return null;
+        Function relatedFunction = relatedFunctions.stream()
+                .filter(f -> f.getParentParameter().getId().equals(
+                        relatedParameter.getId())
+                        && f.getStartPoint() <= step
+                        && f.getEndPoint() >= step)
+                .findFirst().orElse(null);
+        if (relatedFunction != null) {
+            Double innerExpressionResult = calculate(relatedFunction.getExpression(), relatedFunctions, relatedParameters, step);
+            if (innerExpressionResult == null) return null;
+            return String.valueOf(innerExpressionResult);
+        } else return null;
     }
 }

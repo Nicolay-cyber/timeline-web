@@ -10,23 +10,25 @@ CREATE TABLE if not exists parameters
 -- Create the functions table
 CREATE TABLE if not exists functions
 (
-    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
-    start_point         DOUBLE NOT NULL,
-    end_point           DOUBLE NOT NULL,
-    expression          TEXT   NOT NULL,
-    parent_parameter_id BIGINT,
+    id                      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    start_point             DOUBLE NOT NULL,
+    end_point               DOUBLE NOT NULL,
+    expression              TEXT   NOT NULL,
+    parent_parameter_id     BIGINT NOT NULL,
+    related_parameter_id    BIGINT,
+
     FOREIGN KEY (parent_parameter_id) REFERENCES parameters (id)
 );
 
--- Create the junction table for many-to-many relationship
-CREATE TABLE if not exists parameter_function
+-- Промежуточная таблица для связи функций и параметров
+CREATE TABLE if not exists function_parameters
 (
-    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
-    parameter_id        BIGINT NOT NULL,
-    function_id         BIGINT NOT NULL,
-    FOREIGN KEY (parameter_id) REFERENCES parameters (id),
-    FOREIGN KEY (function_id) REFERENCES functions (id)
-    );
+    function_id    BIGINT NOT NULL,
+    parameter_id   BIGINT NOT NULL,
+
+    FOREIGN KEY (function_id) REFERENCES functions (id),
+    FOREIGN KEY (parameter_id) REFERENCES parameters (id)
+);
 
 
 
@@ -55,6 +57,8 @@ VALUES (3, 1, 33530, 47100,
 
 INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
 VALUES (4, 2, 0, 47100,
+        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07');INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+VALUES (7, 2, 50000, 100000,
         '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
 
 
@@ -66,11 +70,15 @@ VALUES (6, 3, 20000, 47100,
         '-1 * 10 ^ -20 * T ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * T ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * Ta ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
 
 
-INSERT INTO parameter_function (function_id, parameter_id)
+INSERT INTO function_parameters (function_id, parameter_id)
 VALUES (4, 1);
-INSERT INTO parameter_function (function_id, parameter_id)
+INSERT INTO function_parameters (function_id, parameter_id)
 VALUES (5, 1);
-INSERT INTO parameter_function (function_id, parameter_id)
+INSERT INTO function_parameters (function_id, parameter_id)
 VALUES (5, 2);
-INSERT INTO parameter_function (function_id, parameter_id)
+INSERT INTO function_parameters (function_id, parameter_id)
 VALUES (6, 2);
+INSERT INTO function_parameters (function_id, parameter_id)
+VALUES (6, 1);
+INSERT INTO function_parameters (function_id, parameter_id)
+VALUES (7, 1);

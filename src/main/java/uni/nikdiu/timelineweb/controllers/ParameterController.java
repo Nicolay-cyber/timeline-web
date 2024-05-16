@@ -1,6 +1,5 @@
 package uni.nikdiu.timelineweb.controllers;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +23,6 @@ public class ParameterController {
         return parameterService.getAllParameters()
                 .stream()
                 .map(parameter -> parameterConvector.toDto(parameter))
-                .collect(Collectors.toList());    }
-
+                .collect(Collectors.toList());
+    }
 }

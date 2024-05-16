@@ -1,6 +1,5 @@
 package uni.nikdiu.timelineweb.entities;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,8 +7,6 @@ import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -40,27 +37,18 @@ public class Function {
     private Parameter parentParameter;
 
     @ManyToMany
-    @JoinTable(name = "parameter_function",
-            joinColumns = @JoinColumn(name = "parameter_id"),
-            inverseJoinColumns = @JoinColumn(name = "function_id"))
+    @JoinTable(
+            name = "function_parameters",
+            joinColumns = @JoinColumn(name = "function_id"),
+            inverseJoinColumns = @JoinColumn(name = "parameter_id")
+    )
     private List<Parameter> relatedParameters;
 
     @Transient
     private List<String> expression;
 
-    @PostConstruct
-    private void extractExpression() {
-        expression = Arrays.asList(stringExpression.split(" "));
+    @Override
+    public String toString() {
+        return "Function " + id + " " + expression;
     }
-
-    @PostConstruct
-    private void check() {
-        log.debug("expression " + expression);
-    }
-/*
-    @OneToMany(mappedBy = "function", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Parameter> relatedParameters;
-
-
-*/
 }
