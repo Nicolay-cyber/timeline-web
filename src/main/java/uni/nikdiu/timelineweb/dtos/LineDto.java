@@ -10,6 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LineDto {
-    private List<Point> points;
+    private List<Double> points;
+    private List<String> labels;
+
     private String parameterName;
 }

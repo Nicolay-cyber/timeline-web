@@ -30,7 +30,8 @@ public class GraphService {
 
         //Set the step
         double step = 100;
-        List<Point> points = new ArrayList<>();
+        List<Double> points = new ArrayList<>();
+        List<Double> labels = new ArrayList<>();
         Calculator calculator = new Calculator();
 
         targetParameter.getFunctions().forEach(function -> {
@@ -43,11 +44,12 @@ public class GraphService {
                 );
                 if(y != null){
                     Point point = new Point(i,y );
-                    points.add(point);
+                    points.add(y);
+                    labels.add(i);
                 }
             }
         });
-        return new Line(points);
+        return new Line(targetParameter.getName(), points,labels);
     }
 
     private void collectRelatedFunctionsAndParameters(

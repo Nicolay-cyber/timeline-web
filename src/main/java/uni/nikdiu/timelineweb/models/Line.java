@@ -11,5 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Line {
     private String parameterName;
-    private List<Point> points;
+    private List<Double> points;
+    private List<Double> labels;
 }
