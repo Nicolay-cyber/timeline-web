@@ -9,6 +9,6 @@ import uni.nikdiu.timelineweb.models.Line;
 @NoArgsConstructor
 public class LineConvector {
     public LineDto toDto(Line line) {
-        return new LineDto(line.getPoints());
+        return new LineDto(line.getPoints(),line.getParameterName());
     }
 }

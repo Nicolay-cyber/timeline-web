@@ -1,7 +1,6 @@
 package uni.nikdiu.timelineweb.models;
 
 import lombok.AllArgsConstructor;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.stereotype.Component;
 import uni.nikdiu.timelineweb.convectors.MathNotationConvector;
 import uni.nikdiu.timelineweb.entities.Function;

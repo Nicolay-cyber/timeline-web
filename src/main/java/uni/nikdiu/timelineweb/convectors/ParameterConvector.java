@@ -7,7 +7,6 @@ import uni.nikdiu.timelineweb.dtos.ParameterDto;
 import uni.nikdiu.timelineweb.entities.Parameter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ParameterConvector {

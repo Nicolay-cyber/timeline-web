@@ -1,5 +1,8 @@
 package uni.nikdiu.timelineweb.convectors;
 
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +33,6 @@ Operator Precedence:
 5. Multiplication and Division: x * y, x / y (evaluated left-to-right)
 6. Addition and Subtraction: x + y, x - y (evaluated left-to-right)
  */
-
 public class MathNotationConvector {
     private final Map<String, Integer> operatorList = new HashMap<>();
 

@@ -11,4 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class LineDto {
     private List<Point> points;
+    private String parameterName;
 }

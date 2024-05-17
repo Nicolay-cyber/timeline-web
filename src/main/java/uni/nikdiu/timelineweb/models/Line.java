@@ -10,5 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Line {
+    private String parameterName;
     private List<Point> points;
 }
