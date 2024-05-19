@@ -51,4 +51,31 @@ angular.module('timeline',[]).controller('indexController', function ($scope, $h
             $scope.loadGraphData(parameterId);
         });
     });
+
+// Создание нового математического поля
+    var MQ = MathQuill.getInterface(2);
+    var answerSpan = document.getElementById('answer');
+    var answerMathField = MQ.MathField(answerSpan, {
+        handlers: {
+            edit: function() {
+                var enteredMath = answerMathField.latex(); // Get entered math in LaTeX format
+                // Возможная обработка введенной формулы
+            }
+        }
+    });
+
+    /// Обработка нажатия кнопки
+    document.getElementById('sendFormulaButton').addEventListener('click', function() {
+        var enteredMath = answerMathField.latex(); // Получить введенную формулу в формате LaTeX
+        $http.post(contextPath + '/parameters', { formula: enteredMath })
+            .then(function(response) {
+                alert('Formula sent successfully!');
+                // Дополнительная обработка успешного ответа
+            })
+            .catch(function(error) {
+                alert('Error sending formula.');
+                console.error(error);
+            });
+    });
 });
+
