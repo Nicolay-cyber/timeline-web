@@ -8,6 +8,7 @@ import uni.nikdiu.timelineweb.entities.Function;
 @Component
 @NoArgsConstructor
 public class FunctionConvector {
+    MathToLaTeXConverter latexConvector = new MathToLaTeXConverter();
     public FunctionDto toDto(Function function){
 
         return new FunctionDto(
@@ -15,6 +16,6 @@ public class FunctionConvector {
                 function.getStartPoint(),
                 function.getEndPoint(),
                 function.getParentParameter().getName(),
-                function.getStringExpression());
+                latexConvector.toLaTeX(function.getStringExpression()));
     }
 }

@@ -57,7 +57,8 @@ VALUES (3, 1, 33530, 47100,
 
 INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
 VALUES (4, 2, 0, 47100,
-        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07');INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
+        '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
+INSERT INTO functions (id, parent_parameter_id, start_point, end_point, expression)
 VALUES (7, 2, 50000, 100000,
         '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07');
 

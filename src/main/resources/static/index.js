@@ -1,12 +1,14 @@
-angular.module('timeline',[]).controller('indexController', function ($scope, $http) {
+angular.module('timeline',[]).controller('indexController', function ($scope, $http, $sce) {
     //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
     const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
-
     $scope.loadParameters = function () {
         $http.get(contextPath + '/parameters').then(function (response) {
             $scope.ParametersList = response.data;
+            $scope.$applyAsync(function() {
+                MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
+            });
         });
     };
 
@@ -23,7 +25,6 @@ angular.module('timeline',[]).controller('indexController', function ($scope, $h
         }
     });
 
-
     $scope.loadGraphData = function (parameterId) {
         $http.get(contextPath + '/graph/' + parameterId).then(function (response) {
             let data = response.data;
@@ -39,14 +40,15 @@ angular.module('timeline',[]).controller('indexController', function ($scope, $h
         myChart.data.datasets[0].label = parameterName;
         myChart.update();
     }
+
     $scope.renderMath = function (expression) {
-        return $sce.trustAsHtml('\\(' + expression + '\\)');
+        return $sce.trustAsHtml(expression);
     };
+
     angular.element(document).ready(function () {
         angular.element('table tr').on('click', function () {
             var parameterId = angular.element(this).data('id');
             $scope.loadGraphData(parameterId);
         });
     });
-
 });
