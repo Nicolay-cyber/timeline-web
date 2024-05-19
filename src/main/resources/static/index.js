@@ -1,5 +1,6 @@
 angular.module('timeline',[]).controller('indexController', function ($scope, $http) {
-    const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+    //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+    const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
 
@@ -38,7 +39,9 @@ angular.module('timeline',[]).controller('indexController', function ($scope, $h
         myChart.data.datasets[0].label = parameterName;
         myChart.update();
     }
-
+    $scope.renderMath = function (expression) {
+        return $sce.trustAsHtml('\\(' + expression + '\\)');
+    };
     angular.element(document).ready(function () {
         angular.element('table tr').on('click', function () {
             var parameterId = angular.element(this).data('id');

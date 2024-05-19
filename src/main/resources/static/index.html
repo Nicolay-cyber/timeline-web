@@ -67,7 +67,7 @@
                         <li href="#" class="list-group-item list-group-item-action" ng-repeat="f in s.functions">
                             ({{f.startPoint}}; {{f.endPoint}})
                             <br>
-                            {{f.expression}}
+                            <span ng-bind-html="renderMath(f.expression)"></span>
                         </li>
                     </ul>
                 </td>
