@@ -1,81 +1,101 @@
-angular.module('timeline',[]).controller('indexController', function ($scope, $http, $sce) {
+angular.module('timeline', []).controller('indexController', function ($scope, $http, $sce) {
+    // Set the context path based on the environment
     //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
     const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
+    // Function to load parameters
     $scope.loadParameters = function () {
         $http.get(contextPath + '/parameters').then(function (response) {
             $scope.ParametersList = response.data;
-            $scope.$applyAsync(function() {
-                MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
-            });
+            if ($scope.ParametersList.length > 0) {
+                // Automatically load data for the first parameter
+                $scope.loadGraphData($scope.ParametersList[0]);
+            }
         });
     };
 
+    // Initialize Chart.js
     let ctx = document.getElementById("myChart").getContext("2d");
     let myChart = new Chart(ctx, {
         type: "line",
         data: {
             labels: [],
             datasets: [{
-                label: "label",
-                data: [],
+                data: [], // Remove the 'label' field
                 backgroundColor: "rgba(153,205,1,0.6)",
             }],
-        }
-    });
-
-    $scope.loadGraphData = function (parameterId) {
-        $http.get(contextPath + '/graph/' + parameterId).then(function (response) {
-            let data = response.data;
-            updateChart(data.labels, data.points, data.parameterName);
-        });
-    };
-
-    $scope.loadParameters();
-
-    function updateChart(labels, points, parameterName) {
-        myChart.data.labels = labels;
-        myChart.data.datasets[0].data = points;
-        myChart.data.datasets[0].label = parameterName;
-        myChart.update();
-    }
-
-    $scope.renderMath = function (expression) {
-        return $sce.trustAsHtml(expression);
-    };
-
-    angular.element(document).ready(function () {
-        angular.element('table tr').on('click', function () {
-            var parameterId = angular.element(this).data('id');
-            $scope.loadGraphData(parameterId);
-        });
-    });
-
-// Создание нового математического поля
-    var MQ = MathQuill.getInterface(2);
-    var answerSpan = document.getElementById('answer');
-    var answerMathField = MQ.MathField(answerSpan, {
-        handlers: {
-            edit: function() {
-                var enteredMath = answerMathField.latex(); // Get entered math in LaTeX format
-                // Возможная обработка введенной формулы
+        },
+        options: {
+            legend: {
+                display: false // Disable legend display
+            },
+            scales: {
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'X Axis Label' // Set default label for x-axis
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Y Axis Label' // Set default label for y-axis
+                    }
+                }]
             }
         }
     });
 
-    /// Обработка нажатия кнопки
-    document.getElementById('sendFormulaButton').addEventListener('click', function() {
-        var enteredMath = answerMathField.latex(); // Получить введенную формулу в формате LaTeX
-        $http.post(contextPath + '/parameters', { formula: enteredMath })
-            .then(function(response) {
-                alert('Formula sent successfully!');
-                // Дополнительная обработка успешного ответа
-            })
-            .catch(function(error) {
-                alert('Error sending formula.');
-                console.error(error);
-            });
-    });
-});
+    // Variable to store the ID of the currently displayed parameter
+    let currentParameterId = null;
 
+    // Function to load graph data for a parameter
+    $scope.loadGraphData = function (parameter) {
+        // Check if the new parameter is different from the current one
+        if (parameter.id !== currentParameterId) {
+            $http.get(contextPath + '/graph/' + parameter.id).then(function (response) {
+                let data = response.data;
+
+                // Update the chart, parameter title, and description
+                updateChart(data.labels, data.points, parameter.name, parameter.abbreviation);
+                $('#parameterTitle').text(parameter.name + ', ' + parameter.abbreviation);
+                $('#parameterDescription').text(parameter.description);
+
+                // Clear the function list before adding new items
+                $('#functionListHTML').empty();
+
+                // Iterate over each function, render it, and add it to the list
+                parameter.functions.forEach(function (func) {
+                    $('#functionListHTML').append('<li class="list-group-item">' + $scope.renderMath(func.expression) + '</li>');
+                });
+
+                $scope.$applyAsync(function () {
+                    MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
+                });
+
+                // Update the ID of the current parameter
+                currentParameterId = parameter.id;
+            });
+        }
+    };
+
+    // Load parameters when the controller is initialized
+    $scope.loadParameters();
+
+    // Function to render math expressions using $sce.trustAsHtml
+    $scope.renderMath = function (expression) {
+        return $sce.trustAsHtml(expression);
+    };
+
+    // Function to update the chart with new data
+    function updateChart(labels, points, parameterName, parameterAbbreviation) {
+        myChart.data.labels = labels;
+        myChart.data.datasets[0].data = points;
+        // Update the axis labels
+        myChart.options.scales.xAxes[0].scaleLabel.labelString = 'Time, years'; // Use provided label or default
+        myChart.options.scales.yAxes[0].scaleLabel.labelString = parameterName + ', ' + parameterAbbreviation || 'Y Axis'; // Use provided label or default
+
+        myChart.update();
+    }
+});

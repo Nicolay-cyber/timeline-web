@@ -12,9 +12,9 @@ public class MathToLaTeXConverter {
 
     public String toLaTeX(String expression) {
         expression = expression.replaceAll("\\s+", ""); // Удаление пробелов
-        System.out.println("before: "+expression);
+
         expression = replaceOperators(expression);
-        System.out.println("after: "+expression);
+
         expression = replaceFunctions(expression);
         expression = replacePowers(expression);
         return "\\[" + expression  + "\\]";
