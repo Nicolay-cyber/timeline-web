@@ -24,7 +24,7 @@ public class Parameter {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "abbreviation", unique = true)
+    @Column(name = "abbreviation")
     private String abbreviation;
 
     @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)

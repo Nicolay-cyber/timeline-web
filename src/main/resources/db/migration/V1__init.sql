@@ -4,7 +4,7 @@ CREATE TABLE if not exists parameters
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
     description  TEXT,
-    abbreviation VARCHAR(255) NOT NULL UNIQUE
+    abbreviation VARCHAR(255) NOT NULL
 );
 
 -- Create the functions table

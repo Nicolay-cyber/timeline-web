@@ -1,12 +1,15 @@
 package uni.nikdiu.timelineweb.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uni.nikdiu.timelineweb.convectors.ParameterConvector;
 import uni.nikdiu.timelineweb.dtos.ParameterDto;
 import uni.nikdiu.timelineweb.services.ParameterService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,18 +28,13 @@ public class ParameterController {
     }
 
     @PostMapping()
-    public void receiveFormula(@RequestBody FormulaRequest formulaRequest) {
-        System.out.println("Received formula: " + formulaRequest.getFormula());
-    }
-    public static class FormulaRequest {
-        private String formula;
+    public ResponseEntity<Map<String, String>> addParameter(@RequestBody ParameterDto parameterDto) {
+        // Your logic to add the parameter here...
+        System.out.println("Received parameterDto: " + parameterDto);
+        // Return a response indicating success as a JSON object
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Parameter added successfully");
 
-        public String getFormula() {
-            return formula;
-        }
-
-        public void setFormula(String formula) {
-            this.formula = formula;
-        }
+        return ResponseEntity.ok(response);
     }
 }

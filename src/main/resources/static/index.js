@@ -1,8 +1,83 @@
 angular.module('timeline', []).controller('indexController', function ($scope, $http, $sce) {
     // Set the context path based on the environment
-    //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
-    const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
+    const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+    //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
+
+    // Initialize new parameter object
+    $scope.newParameter = {
+        name: '',
+        abbreviation: '',
+        description: '',
+        functions: []
+    };
+
+    $scope.newFunction = {
+        startPoint: '',
+        endPoint: '',
+        expression: ''
+    };
+
+    // Function to open the modal for adding a new parameter
+    $scope.openNewParameterModal = function () {
+        $scope.newParameter = {
+            name: '',
+            abbreviation: '',
+            description: '',
+            functions: []
+        };
+        $scope.newFunction = {
+            startPoint: '',
+            endPoint: '',
+            expression: ''
+        };
+
+        // Debugging log
+        console.log('Clearing function list');
+        console.log($('#newParameterFunctionList'));
+
+        $('#newParameterFunctionList').empty();
+        $('#addParameterModal').modal('show');
+    };
+
+    // Function to add a new function field
+    $scope.addFunction = function () {
+        let newFunctionCopy = angular.copy($scope.newFunction);
+        newFunctionCopy.expression = '\\[' + answerMathField.latex() + '\\]'; // Capture the LaTeX from MathQuill
+        console.log("newFunctionCopy: " + newFunctionCopy.expression)
+        $scope.newParameter.functions.push(newFunctionCopy);
+
+        $scope.newFunction = {
+            startPoint: '',
+            endPoint: '',
+            expression: ''
+        };
+
+        // Clear MathQuill field
+        answerMathField.latex('');
+
+        // Iterate over each function, render it, and add it to the list
+        $scope.newParameter.functions.forEach(function (func) {
+            $('#newParameterFunctionList').append('<li class="list-group-item">' +
+                'Interval: ' + func.startPoint + ' - ' + func.endPoint + '<br>' + $scope.renderMath(func.expression)
+                + '</li>');
+        });
+
+        $scope.$applyAsync(function () {
+            MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
+        });
+    };
+
+
+    // Function to add the new parameter
+    $scope.addParameter = function () {
+        $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
+            // Reload the parameters list after adding the new parameter
+            $scope.loadParameters();
+            $('#addParameterModal').modal('hide');
+        });
+    };
+
 
     // Function to load parameters
     $scope.loadParameters = function () {
@@ -98,4 +173,17 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
         myChart.update();
     }
+
+
+    // Create a new MathQuill field
+    var MQ = MathQuill.getInterface(2);
+    var answerSpan = document.getElementById('newFormulaField');
+    var answerMathField = MQ.MathField(answerSpan, {
+        handlers: {
+            edit: function () {
+                var enteredMath = answerMathField.latex(); // Get entered math in LaTeX format
+                $scope.newFunction.expression = enteredMath;
+            }
+        }
+    });
 });

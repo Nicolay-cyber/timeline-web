@@ -4,6 +4,7 @@ package uni.nikdiu.timelineweb.convectors;
 import org.springframework.stereotype.Component;
 import uni.nikdiu.timelineweb.dtos.FunctionDto;
 import uni.nikdiu.timelineweb.dtos.ParameterDto;
+import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
 
 import java.util.List;
@@ -17,5 +18,7 @@ public class ParameterConvector {
 
         return new ParameterDto(parameter.getId(), parameter.getName(), parameter.getDescription(), parameter.getAbbreviation(), functions);
     }
+
+
 
 }
