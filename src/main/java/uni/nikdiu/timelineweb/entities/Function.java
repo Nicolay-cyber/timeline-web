@@ -47,8 +47,17 @@ public class Function {
     @Transient
     private List<String> expression;
 
+    public Function(Long id, Double startPoint, Double endPoint, String stringExpression, List<String> expression) {
+        this.id = id;
+        this.startPoint = startPoint;
+        this.endPoint = endPoint;
+        this.stringExpression = stringExpression;
+        this.expression = expression;
+    }
+
     @Override
     public String toString() {
         return "Function " + id + " " + expression;
     }
+
 }

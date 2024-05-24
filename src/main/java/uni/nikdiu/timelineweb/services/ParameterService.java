@@ -22,6 +22,10 @@ public class ParameterService {
         return parameterRepository.findByAbbreviation(s);
     }
 
+    public Parameter save(Parameter parameter) {
+        return parameterRepository.save(parameter);
+    }
+
     /*public Parameter getParameter(Long id, Double step) {
         Parameter parameter = parameterRepository.findById(id).orElseThrow(() -> new RuntimeException("Parameter not found"));
         replaceVariables(parameter);

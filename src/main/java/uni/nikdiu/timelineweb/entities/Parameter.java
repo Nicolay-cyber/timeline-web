@@ -30,4 +30,10 @@ public class Parameter {
     @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private List<Function> functions;
 
+    public Parameter(Long id, String name, String description, String abbreviation) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.abbreviation = abbreviation;
+    }
 }

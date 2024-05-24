@@ -57,6 +57,12 @@ public class ExpressionTypeConverter {
 
     public String latexToClassic(String latexExpression) {
         // Remove LaTeX delimiters
+        System.out.println();
+        System.out.println("latexExpression: "+latexExpression);
+        latexExpression = latexExpression.replaceAll("\\\\\\[","");
+        System.out.println("latexExpression: "+latexExpression);
+        latexExpression = latexExpression.replaceAll("\\\\]", "");
+        System.out.println("latexExpression: "+latexExpression);
 
 
         // Reverse replace powers
@@ -95,11 +101,11 @@ public class ExpressionTypeConverter {
 
     private String reverseReplaceOperators(String expression) {
         // Reverse the replacement of operators
-        expression = expression.replaceAll("\\\\cdot", "*");
-        expression = expression.replaceAll("/", "/");
-        expression = expression.replaceAll("\\+", "+");
-        expression = expression.replaceAll("\\\\left\\|", "|");
-        expression = expression.replaceAll("\\\\right\\|", "|");
+        expression = expression.replaceAll("\\\\cdot", " * ");
+        expression = expression.replaceAll("/", " / ");
+        expression = expression.replaceAll("\\+", " + ");
+        expression = expression.replaceAll("\\\\left\\|", " |");
+        expression = expression.replaceAll("\\\\right\\|", "| ");
         return expression;
     }
 
