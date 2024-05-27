@@ -42,14 +42,18 @@ public class GraphService {
                         relatedParameters,
                         i
                 );
-                if(y != null){
+                if(y != null && isValidNumber(y)){
                     Point point = new Point(i,y );
                     points.add(y);
                     labels.add(i);
                 }
             }
         });
+
         return new Line(targetParameter.getName(), points,labels);
+    }
+    private boolean isValidNumber(Double number) {
+        return !number.isNaN() && !number.isInfinite();
     }
 
     private void collectRelatedFunctionsAndParameters(

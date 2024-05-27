@@ -2,6 +2,7 @@ package uni.nikdiu.timelineweb.convectors;
 
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +12,6 @@ import java.util.regex.Pattern;
 public class ExpressionTypeConverter {
 
 
-
     public String classicToLatex(String classicExpression) {
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
 
@@ -19,7 +19,7 @@ public class ExpressionTypeConverter {
 
         classicExpression = replaceFunctions(classicExpression);
         classicExpression = replacePowers(classicExpression);
-        return "\\[" + classicExpression  + "\\]";
+        return "\\[" + classicExpression + "\\]";
     }
 
 
@@ -58,51 +58,116 @@ public class ExpressionTypeConverter {
     public String latexToClassic(String latexExpression) {
         // Remove LaTeX delimiters
         System.out.println();
-        System.out.println("latexExpression: "+latexExpression);
-        latexExpression = latexExpression.replaceAll("\\\\\\[","");
-        System.out.println("latexExpression: "+latexExpression);
+        System.out.println("row latexExpression: " + latexExpression);
+        latexExpression = latexExpression.replaceAll("\\\\\\[", "");
         latexExpression = latexExpression.replaceAll("\\\\]", "");
-        System.out.println("latexExpression: "+latexExpression);
+        System.out.println("latexExpression: " + latexExpression);
 
+        latexExpression = latexExpression.replaceAll("\\\\left\\(", "(");
+        latexExpression = latexExpression.replaceAll("\\\\right\\)", ")");
 
-        // Reverse replace powers
-        latexExpression = reverseReplacePowers(latexExpression);
+        latexExpression = latexExpression.replaceAll("\\{", "(");
+        latexExpression = latexExpression.replaceAll("\\}", ")");
+
+        System.out.println("latexExpression (replaced brackets): " + latexExpression);
+        // Reverse replace divisions
+        while (latexExpression.contains("frac")) {
+            latexExpression = reverseReplaceDivisions(latexExpression);
+        }
+        System.out.println("latexExpression (reverseReplaceDivisions): " + latexExpression);
+
 
         // Reverse replace functions
         latexExpression = reverseReplaceFunctions(latexExpression);
+        System.out.println("latexExpression (reverseReplaceFunctions): " + latexExpression);
 
         // Reverse replace operators
         latexExpression = reverseReplaceOperators(latexExpression);
+        System.out.println("latexExpression (reverseReplaceOperators): " + latexExpression);
 
+
+        latexExpression = latexExpression.replaceAll("\\(", " ( ");
+        latexExpression = latexExpression.replaceAll("\\)", " ) ");
+
+        while (latexExpression.contains("  ")) {
+            latexExpression = latexExpression.replaceAll(" {2}", " ");
+        }
+        latexExpression = latexExpression.trim();
+        System.out.println("latexExpression (final version): " + latexExpression);
         return latexExpression;
     }
 
-    private String reverseReplacePowers(String expression) {
-        // Reverse the pattern
-        Pattern pattern = Pattern.compile("\\{([^{}]+)\\}\\^\\{([^{}]+)\\}");
-        Matcher matcher = pattern.matcher(expression);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, matcher.group(1) + "^" + matcher.group(2));
+    private String reverseReplaceDivisions(String input) {
+        int startIndex = input.indexOf("\\frac");
+        if (startIndex == -1) // Если не найдено \frac, вернуть исходную строку
+            return input;
+
+        // Найти начало делимого (до первой открывающей скобки после \frac)
+        int startNumerator = startIndex + 5; // Индекс после "\\frac"
+        int bracketCount = 0;
+        int i;
+        for (i = startNumerator; i < input.length(); i++) {
+            if (input.charAt(i) == '(') {
+                bracketCount++;
+            } else if (input.charAt(i) == ')') {
+                bracketCount--;
+            }
+            if (bracketCount == 0) {
+                break;
+            }
         }
-        matcher.appendTail(sb);
-        return sb.toString();
+        String numerator = input.substring(startNumerator + 1, i); // Найденное делимое
+        int startDenominator = i + 1; // Индекс после закрывающей скобки делимого
+        bracketCount = 0;
+        for (i = startDenominator; i < input.length(); i++) {
+            if (input.charAt(i) == '(') {
+                bracketCount++;
+            } else if (input.charAt(i) == ')') {
+                bracketCount--;
+            }
+            if (bracketCount == 0) {
+                break;
+            }
+        }
+        String denominator = input.substring(startDenominator + 1, i); // Найденный делитель
+
+        // Сформировать строку с отформатированным делимым и делителем
+        String formattedFraction = " (" + numerator.trim() + ") / (" + denominator.trim() + ") ";
+
+        // Заменить подстроку с \frac и аргументами на отформатированную строку
+        return input.substring(0, startIndex) + formattedFraction + input.substring(i + 1);
     }
+
+
+    private static int findClosingBracket(String input, int start) {
+        int bracketCount = 0;
+        for (int i = start; i < input.length(); i++) {
+            if (input.charAt(i) == '(') {
+                bracketCount++;
+            } else if (input.charAt(i) == ')') {
+                bracketCount--;
+                if (bracketCount == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
 
     private String reverseReplaceFunctions(String expression) {
         // Reverse the replacement of functions
-        expression = expression.replaceAll("\\\\sin\\\\left\\(([^{}]+)\\\\right\\)", "sin($1)");
-        expression = expression.replaceAll("\\\\cos\\\\left\\(([^{}]+)\\\\right\\)", "cos($1)");
-        expression = expression.replaceAll("\\\\tan\\\\left\\(([^{}]+)\\\\right\\)", "tan($1)");
-        expression = expression.replaceAll("\\\\log\\\\left\\(([^{}]+)\\\\right\\)", "log($1)");
-        expression = expression.replaceAll("\\\\sqrt\\\\left\\(([^{}]+)\\\\right\\)", "root($1)");
+        expression = expression.replaceAll("\\\\sin", "sin");
+        expression = expression.replaceAll("\\\\cos", "cos");
+        expression = expression.replaceAll("\\\\tan", "tan");
+        expression = expression.replaceAll("\\\\log", "log");
+        expression = expression.replaceAll("\\\\sqrt", "root");
         return expression;
     }
 
     private String reverseReplaceOperators(String expression) {
         // Reverse the replacement of operators
         expression = expression.replaceAll("\\\\cdot", " * ");
-        expression = expression.replaceAll("/", " / ");
         expression = expression.replaceAll("\\+", " + ");
         expression = expression.replaceAll("\\\\left\\|", " |");
         expression = expression.replaceAll("\\\\right\\|", "| ");

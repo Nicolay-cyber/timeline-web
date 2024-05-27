@@ -54,11 +54,7 @@ public class ParameterController {
         System.out.println("Converted entity: " + parameter);
 
         parameter = parameterService.save(parameter);
+        System.out.println("new parameter is saved: " + parameter);
         return parameterConvector.toDto(parameter);
-        /* Return a response indicating success as a JSON object
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Parameter added successfully");
-
-        return ResponseEntity.ok(response);*/
     }
 }

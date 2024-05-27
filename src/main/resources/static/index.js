@@ -1,8 +1,8 @@
 angular.module('timeline', []).controller('indexController', function ($scope, $http, $sce) {
     // Set the context path based on the environment
-    const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+    //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
     //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
-    //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
+    const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
     // Initialize new parameter object
     $scope.newParameter = {
@@ -32,10 +32,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
             expression: ''
         };
 
-        // Debugging log
-        console.log('Clearing function list');
-        console.log($('#newParameterFunctionList'));
-
         $('#newParameterFunctionList').empty();
         $('#addParameterModal').modal('show');
     };
@@ -44,7 +40,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
     $scope.addFunction = function () {
         let newFunctionCopy = angular.copy($scope.newFunction);
         newFunctionCopy.expression = '\\[' + answerMathField.latex() + '\\]'; // Capture the LaTeX from MathQuill
-        console.log("newFunctionCopy: " + newFunctionCopy.expression)
         $scope.newParameter.functions.push(newFunctionCopy);
 
         $scope.newFunction = {
@@ -67,19 +62,7 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
             MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
         });
     };
-
-
-    // Function to add the new parameter
-    $scope.addParameter = function () {
-        $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
-            // Reload the parameters list after adding the new parameter
-            $scope.loadParameters();
-            $('#addParameterModal').modal('hide');
-        });
-    };
-
-
-    // Function to load parameters
+// Function to load parameters
     $scope.loadParameters = function () {
         $http.get(contextPath + '/parameters').then(function (response) {
             $scope.ParametersList = response.data;
@@ -87,6 +70,17 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
                 // Automatically load data for the first parameter
                 $scope.loadGraphData($scope.ParametersList[0]);
             }
+        });
+    };
+
+    // Function to add the new parameter
+    $scope.addParameter = function () {
+        $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
+            console.log('new parameter added successfully');
+            // Reload the parameters list after adding the new parameter
+            $scope.loadParameters(); // Добавить эту строку для обновления списка параметров
+            $('#addParameterModal').modal('hide');
+            $scope.$apply(); // Обновление представления
         });
     };
 
@@ -142,12 +136,13 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
                 // Iterate over each function, render it, and add it to the list
                 parameter.functions.forEach(function (func) {
-                    $('#functionListHTML').append('<li class="list-group-item">' + $scope.renderMath(func.expression) + '</li>');
+                    $('#functionListHTML')
+                        .append('<li class="list-group-item">' + 'Interval: ' + func.startPoint + ' - ' + func.endPoint
+                            + '<br>' + $scope.renderMath(func.expression) + '</li>');
                 });
 
-                $scope.$applyAsync(function () {
                     MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
-                });
+
 
                 // Update the ID of the current parameter
                 currentParameterId = parameter.id;
@@ -156,7 +151,7 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
     };
 
     // Load parameters when the controller is initialized
-    $scope.loadParameters();
+
 
     // Function to render math expressions using $sce.trustAsHtml
     $scope.renderMath = function (expression) {
@@ -186,4 +181,5 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
             }
         }
     });
+    $scope.loadParameters();
 });
