@@ -141,8 +141,9 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
                             + '<br>' + $scope.renderMath(func.expression) + '</li>');
                 });
 
+                $scope.$applyAsync(function () {
                     MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
-
+                });
 
                 // Update the ID of the current parameter
                 currentParameterId = parameter.id;
@@ -150,7 +151,12 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         }
     };
 
-    // Load parameters when the controller is initialized
+// Add event listener for window resize
+    window.addEventListener('resize', function() {
+        if (currentParameterId) {
+            $scope.loadGraphDataById(currentParameterId);
+        }
+    });
 
 
     // Function to render math expressions using $sce.trustAsHtml

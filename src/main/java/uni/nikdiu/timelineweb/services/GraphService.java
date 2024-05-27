@@ -28,30 +28,45 @@ public class GraphService {
             collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
         });
 
+
         //Set the step
-        double step = 100;
+        // Find the smallest and biggest start/end points among functions of the target parameter
+        Optional<Double> smallestStartPoint = targetParameter.getFunctions().stream()
+                .map(Function::getStartPoint)
+                .min(Double::compareTo);
+
+        Optional<Double> biggestEndPoint = targetParameter.getFunctions().stream()
+                .map(Function::getEndPoint)
+                .max(Double::compareTo);
+
+        double startPoint = smallestStartPoint.orElse(0.0);
+        double endPoint = biggestEndPoint.orElse(0.0);
+
+        // Set double step like (endPoint-startPoint)/50
+        double step = (endPoint - startPoint) / 50;
         List<Double> points = new ArrayList<>();
         List<Double> labels = new ArrayList<>();
         Calculator calculator = new Calculator();
 
         targetParameter.getFunctions().forEach(function -> {
             for (Double i = function.getStartPoint(); i <= function.getEndPoint(); i += step) {
-                Double y =  calculator.calculate(
+                Double y = calculator.calculate(
                         Arrays.asList(function.getStringExpression().split(" ")),
                         relatedFunctions,
                         relatedParameters,
                         i
                 );
-                if(y != null && isValidNumber(y)){
-                    Point point = new Point(i,y );
+                if (y != null && isValidNumber(y)) {
+                    Point point = new Point(i, y);
                     points.add(y);
                     labels.add(i);
                 }
             }
         });
 
-        return new Line(targetParameter.getName(), points,labels);
+        return new Line(targetParameter.getName(), points, labels);
     }
+
     private boolean isValidNumber(Double number) {
         return !number.isNaN() && !number.isInfinite();
     }
