@@ -15,6 +15,6 @@ public class ParameterDto {
     private String description;
     private String abbreviation;
     private List<FunctionDto> functions;
-    private List<Point> points;
+    private List<PointDto> points;
 
 }

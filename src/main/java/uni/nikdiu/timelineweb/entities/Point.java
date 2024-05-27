@@ -17,10 +17,10 @@ public class Point {
     private Long id;
 
     @Column(name = "x")
-    private String x;
+    private Double x;
 
     @Column(name = "y")
-    private String y;
+    private Double y;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parameter_id")

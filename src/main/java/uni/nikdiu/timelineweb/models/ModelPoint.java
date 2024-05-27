@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Point {
+public class ModelPoint {
     private double x;
     private double y;
 }

@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
+import uni.nikdiu.timelineweb.entities.Point;
 import uni.nikdiu.timelineweb.models.Calculator;
 import uni.nikdiu.timelineweb.models.Line;
-import uni.nikdiu.timelineweb.models.Point;
+import uni.nikdiu.timelineweb.models.ModelPoint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +48,9 @@ public class GraphService {
         List<Double> points = new ArrayList<>();
         List<Double> labels = new ArrayList<>();
         Calculator calculator = new Calculator();
+        if(!targetParameter.getPoints().isEmpty()){
 
+        }
         targetParameter.getFunctions().forEach(function -> {
             for (Double i = function.getStartPoint(); i <= function.getEndPoint(); i += step) {
                 Double y = calculator.calculate(
@@ -57,7 +60,6 @@ public class GraphService {
                         i
                 );
                 if (y != null && isValidNumber(y)) {
-                    Point point = new Point(i, y);
                     points.add(y);
                     labels.add(i);
                 }

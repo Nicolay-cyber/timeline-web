@@ -125,9 +125,12 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         if (parameter.id !== currentParameterId) {
             $http.get(contextPath + '/graph/' + parameter.id).then(function (response) {
                 let data = response.data;
+// Extract x and y values from points
+                let labels = data.points.map(point => point.x);
+                let points = data.points.map(point => point.y);
 
                 // Update the chart, parameter title, and description
-                updateChart(data.labels, data.points, parameter.name, parameter.abbreviation);
+                updateChart(labels, points, parameter.name, parameter.abbreviation);
                 $('#parameterTitle').text(parameter.name + ', ' + parameter.abbreviation);
                 $('#parameterDescription').text(parameter.description);
 
@@ -166,6 +169,7 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
     // Function to update the chart with new data
     function updateChart(labels, points, parameterName, parameterAbbreviation) {
+        myChart.data.labels = labels;
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = points;
         // Update the axis labels
