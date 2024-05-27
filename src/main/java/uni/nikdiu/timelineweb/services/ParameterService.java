@@ -13,11 +13,14 @@ public class ParameterService {
     private final ParameterRepository parameterRepository;
 
     public List<Parameter> getAllParameters() {
+        System.out.println("found parameters: " + parameterRepository.findAll());
         return parameterRepository.findAll();
     }
+
     public Parameter getParameterById(Long id) {
         return parameterRepository.findById(id).orElseThrow(() -> new RuntimeException("Parameter not found"));
     }
+
     public Parameter getParameterByAbbreviation(String s) {
         return parameterRepository.findByAbbreviation(s);
     }

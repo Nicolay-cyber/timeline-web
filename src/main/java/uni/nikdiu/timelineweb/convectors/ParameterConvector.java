@@ -19,7 +19,12 @@ public class ParameterConvector {
         List<FunctionDto> functions = parameter.getFunctions().stream()
                 .map(function -> functionConvector.toDto(function)).toList();
 
-        return new ParameterDto(parameter.getId(), parameter.getName(), parameter.getDescription(), parameter.getAbbreviation(), functions);
+        return new ParameterDto(
+                parameter.getId(),
+                parameter.getName(),
+                parameter.getDescription(),
+                parameter.getAbbreviation(),
+                functions,parameter.getPoints());
     }
 
     public Parameter toEntity(ParameterDto parameterDto, Map<FunctionDto, List<Parameter>> relatedParameters) {

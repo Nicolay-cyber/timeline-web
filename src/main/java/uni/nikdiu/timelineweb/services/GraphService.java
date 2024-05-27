@@ -42,7 +42,7 @@ public class GraphService {
         double startPoint = smallestStartPoint.orElse(0.0);
         double endPoint = biggestEndPoint.orElse(0.0);
 
-        // Set double step like (endPoint-startPoint)/50
+        // Set double step for 50 points
         double step = (endPoint - startPoint) / 50;
         List<Double> points = new ArrayList<>();
         List<Double> labels = new ArrayList<>();
