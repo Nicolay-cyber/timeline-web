@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,7 +31,8 @@ public class Parameter {
     @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private List<Function> functions;
 
-    @OneToMany(mappedBy = "parameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_parameter_id")
     private List<Point> points;
 
     public Parameter(Long id, String name, String description, String abbreviation) {
@@ -38,5 +40,7 @@ public class Parameter {
         this.name = name;
         this.description = description;
         this.abbreviation = abbreviation;
+        this.points = new ArrayList<>();
+        this.functions = new ArrayList<>();
     }
 }

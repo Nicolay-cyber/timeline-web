@@ -29,23 +29,31 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         $scope.newFunction = {
             startPoint: '',
             endPoint: '',
-            expression: ''
+            expression: '',
+            relatedParameterIds: []
         };
 
         $('#newParameterFunctionList').empty();
         $('#addParameterModal').modal('show');
     };
-
+// Function to convert relatedParameterIds string to array of Long
+    $scope.processRelatedParameterIds = function (idsString) {
+        return idsString.split(',').map(id => parseInt(id.trim()));
+    };
     // Function to add a new function field
     $scope.addFunction = function () {
         let newFunctionCopy = angular.copy($scope.newFunction);
         newFunctionCopy.expression = '\\[' + answerMathField.latex() + '\\]'; // Capture the LaTeX from MathQuill
+        // Process relatedParameterIds string
+        newFunctionCopy.relatedParameterIds = $scope.processRelatedParameterIds($scope.newFunction.relatedParameterIds);
+
         $scope.newParameter.functions.push(newFunctionCopy);
 
         $scope.newFunction = {
             startPoint: '',
             endPoint: '',
-            expression: ''
+            expression: '',
+            relatedParameterIds: []
         };
 
         // Clear MathQuill field
@@ -80,7 +88,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
             // Reload the parameters list after adding the new parameter
             $scope.loadParameters(); // Добавить эту строку для обновления списка параметров
             $('#addParameterModal').modal('hide');
-            $scope.$apply(); // Обновление представления
         });
     };
 
@@ -124,25 +131,35 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         // Check if the new parameter is different from the current one
         if (parameter.id !== currentParameterId) {
             $http.get(contextPath + '/graph/' + parameter.id).then(function (response) {
-                let data = response.data;
+
 // Extract x and y values from points
-                let labels = data.points.map(point => point.x);
-                let points = data.points.map(point => point.y);
+
 
                 // Update the chart, parameter title, and description
-                updateChart(labels, points, parameter.name, parameter.abbreviation);
+                updateChart(response.data.labels, response.data.points, parameter.name, parameter.abbreviation);
                 $('#parameterTitle').text(parameter.name + ', ' + parameter.abbreviation);
                 $('#parameterDescription').text(parameter.description);
-
+// Clear the points list before adding new items
+                $('#pointsList').empty();
+                // Add points to the points list
+                if (parameter.points && parameter.points.length > 0) {
+                    parameter.points.forEach(function (point) {
+                        $('#pointsList').append('<div class="point-item mr-2">' + ' (' + point.x + ', ' + point.y +') '+ '</div>');
+                    });
+                } else {
+                    $('#pointsList').append('<p>No data</p>');
+                }
                 // Clear the function list before adding new items
                 $('#functionListHTML').empty();
 
                 // Iterate over each function, render it, and add it to the list
-                parameter.functions.forEach(function (func) {
-                    $('#functionListHTML')
-                        .append('<li class="list-group-item">' + 'Interval: ' + func.startPoint + ' - ' + func.endPoint
-                            + '<br>' + $scope.renderMath(func.expression) + '</li>');
-                });
+                if (parameter.functions && parameter.functions.length > 0) {
+                    parameter.functions.forEach(function (func) {
+                        $('#functionListHTML').append('<li class="list-group-item">' + 'Inderval: ' + func.startPoint + ' - ' + func.endPoint + '<br>' + $scope.renderMath(func.expression) + '</li>');
+                    });
+                } else {
+                    $('#functionListHTML').append('<li class="list-group-item">No data</li>');
+                }
 
                 $scope.$applyAsync(function () {
                     MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
@@ -154,13 +171,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         }
     };
 
-// Add event listener for window resize
-    window.addEventListener('resize', function() {
-        if (currentParameterId) {
-            $scope.loadGraphDataById(currentParameterId);
-        }
-    });
-
 
     // Function to render math expressions using $sce.trustAsHtml
     $scope.renderMath = function (expression) {
@@ -169,7 +179,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
     // Function to update the chart with new data
     function updateChart(labels, points, parameterName, parameterAbbreviation) {
-        myChart.data.labels = labels;
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = points;
         // Update the axis labels

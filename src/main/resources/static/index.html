@@ -103,6 +103,7 @@
             <table class="table table-hover" cellpadding="0" cellspacing="0">
                 <thead>
                 <tr>
+                    <th scope="col">Id</th>
                     <th scope="col">Name</th>
                     <th scope="col">Description</th>
 
@@ -111,6 +112,7 @@
 
                 <tbody>
                 <tr ng-repeat="s in ParametersList" ng-click="loadGraphData(s)" data-id="{{s.id}}">
+                    <td>{{s.id}}</td>
                     <td>{{s.name}}</td>
                     <td>{{s.description}}</td>
                 </tr>
@@ -126,8 +128,13 @@
             <div id="parameterDetails">
                 <h3 id="parameterTitle"></h3>
                 <p id="parameterDescription"></p>
-                <ul id="functionListHTML" class="list-group">
+                <h4>Points</h4>
+                <div id="pointsList" class="d-flex flex-wrap">
+                    <!-- Points will be inserted here dynamically -->
+                </div>
 
+                <h4>Functions</h4>
+                <ul id="functionListHTML" class="list-group">
                 </ul>
             </div>
         </div>
@@ -175,10 +182,16 @@
                         <label for="newFormulaField">Function</label>
                         <p><span id="newFormulaField">x=</span></p>
                     </div>
+                    <div class="form-group">
+                        <label for="newFormulaRelatedParameterField">Related parameter IDs</label>
+                        <input type="text" class="form-control" id="newFormulaRelatedParameterField" ng-model="newFunction.relatedParameterIds">
+                    </div>
 
                     <button id="addFunctionButton" class="btn btn-primary" type="button" ng-click="addFunction()">Add
                         Function
                     </button>
+                    <!-- Display list of functions -->
+
                     <!-- Display list of functions -->
                     <ul id="newParameterFunctionList" class="list-group">
                     </ul>

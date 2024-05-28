@@ -36,7 +36,7 @@ spring:
 
   jpa:
     #show-sql: true  # Показывать SQL-запросы в логах
-    show-sql: true  # Не показывать SQL-запросы в логах
+    show-sql: false  # Не показывать SQL-запросы в логах
     hibernate:
       ddl-auto: update  # Автоматическое обновление схемы базы данных
     properties:

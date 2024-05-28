@@ -23,6 +23,6 @@ public class Point {
     private Double y;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parameter_id")
-    private Parameter parameter;
+    @JoinColumn(name = "related_parameter_id")
+    private Parameter relatedParameter;
 }

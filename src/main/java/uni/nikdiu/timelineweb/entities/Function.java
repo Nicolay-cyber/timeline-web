@@ -57,7 +57,7 @@ public class Function {
 
     @Override
     public String toString() {
-        return "Function " + id + " " + expression;
+        return "Function " + id + " (" + startPoint + ", " + endPoint + "): " + expression;
     }
 
 }

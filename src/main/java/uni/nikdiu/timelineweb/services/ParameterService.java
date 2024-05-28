@@ -28,29 +28,4 @@ public class ParameterService {
     public Parameter save(Parameter parameter) {
         return parameterRepository.save(parameter);
     }
-
-    /*public Parameter getParameter(Long id, Double step) {
-        Parameter parameter = parameterRepository.findById(id).orElseThrow(() -> new RuntimeException("Parameter not found"));
-        replaceVariables(parameter);
-        return parameter;
-    }
-
-    private void replaceVariables(Parameter parameter) {
-
-        List<Point> points = new ArrayList<Point>();
-        Calculator calculator = new Calculator();
-        List<String> expression = new ArrayList<String>();
-        for(Function f : parameter.getFunctions()){
-            expression = Arrays.asList(f.getExpression().split(" "));
-            for(String s : expression){
-                if(!s.matches("-?\\d+(\\.\\d+)?") && !s.matches("t")){
-                    Parameter valuableParameter = parameterRepository.findByAbbreviation(s);
-                    replaceVariables(valuableParameter);
-
-                }
-            }
-
-        }
-    }
-*/
 }

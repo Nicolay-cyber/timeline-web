@@ -44,7 +44,7 @@ public class ParameterController {
                                 .map(parameterService::getParameterById)
                                 .collect(Collectors.toList());
                     } else {
-                        return new ArrayList<Parameter>();
+                        return new ArrayList<>();
                     }
                 }
         ));
