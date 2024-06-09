@@ -28,6 +28,10 @@ public class Parameter {
     @Column(name = "abbreviation")
     private String abbreviation;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_id")
+    private Unit unit;
+
     @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private List<Function> functions;
 

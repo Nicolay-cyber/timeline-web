@@ -105,6 +105,7 @@
                 <tr>
                     <th scope="col">Id</th>
                     <th scope="col">Name</th>
+                    <th scope="col">Unit</th>
                     <th scope="col">Description</th>
 
                 </tr>
@@ -114,6 +115,7 @@
                 <tr ng-repeat="s in ParametersList" ng-click="loadGraphData(s)" data-id="{{s.id}}">
                     <td>{{s.id}}</td>
                     <td>{{s.name}}</td>
+                    <td>{{s.unit.abbreviation}}</td>
                     <td>{{s.description}}</td>
                 </tr>
                 </tbody>

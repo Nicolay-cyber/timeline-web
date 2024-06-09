@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 import uni.nikdiu.timelineweb.dtos.FunctionDto;
 import uni.nikdiu.timelineweb.dtos.ParameterDto;
 import uni.nikdiu.timelineweb.dtos.PointDto;
+import uni.nikdiu.timelineweb.dtos.UnitDto;
 import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
+import uni.nikdiu.timelineweb.entities.Unit;
 
 import java.util.List;
 import java.util.Map;
@@ -25,17 +27,35 @@ public class ParameterConvector {
         List<PointDto> points = parameter.getPoints().stream()
                 .map(point -> pointConvector.toDto(point)).toList();
 
-
+        UnitDto unitDto = null;
+        if (parameter.getUnit() != null) {
+            unitDto = new UnitDto(
+                    parameter.getUnit().getId(),
+                    parameter.getUnit().getName(),
+                    parameter.getUnit().getAbbreviation()
+            );
+        }
         return new ParameterDto(
                 parameter.getId(),
                 parameter.getName(),
                 parameter.getDescription(),
                 parameter.getAbbreviation(),
+                unitDto,
                 functions,
                 points);
     }
 
     public Parameter toEntity(ParameterDto parameterDto, Map<FunctionDto, List<Parameter>> relatedParameters) {
+
+        Unit unit = null;
+        if (parameterDto.getUnit() != null) {
+            unit = new Unit(
+                    parameterDto.getUnit().getId(),
+                    parameterDto.getUnit().getName(),
+                    parameterDto.getUnit().getAbbreviation()
+            );
+        }
+
         Parameter parameter = new Parameter(
                 parameterDto.getId(),
                 parameterDto.getName(),

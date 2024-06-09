@@ -136,15 +136,15 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
 
                 // Update the chart, parameter title, and description
-                updateChart(response.data.labels, response.data.points, parameter.name, parameter.abbreviation);
-                $('#parameterTitle').text(parameter.name + ', ' + parameter.abbreviation);
+                updateChart(response.data.labels, response.data.points, parameter.name, parameter.unit.abbreviation);
+                $('#parameterTitle').text(parameter.name + ' (' + parameter.abbreviation + '), ' + parameter.unit.abbreviation);
                 $('#parameterDescription').text(parameter.description);
 // Clear the points list before adding new items
                 $('#pointsList').empty();
                 // Add points to the points list
                 if (parameter.points && parameter.points.length > 0) {
                     parameter.points.forEach(function (point) {
-                        $('#pointsList').append('<div class="point-item mr-2">' + ' (' + point.x + ', ' + point.y +') '+ '</div>');
+                        $('#pointsList').append('<div class="point-item mr-2">' + ' (' + point.x + ', ' + point.y + ') ' + '</div>');
                     });
                 } else {
                     $('#pointsList').append('<p>No data</p>');
