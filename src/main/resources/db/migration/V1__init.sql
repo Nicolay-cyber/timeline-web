@@ -61,6 +61,20 @@ CREATE TABLE IF NOT EXISTS parameters
     unit_id      BIGINT,
     FOREIGN KEY (unit_id) REFERENCES units (id)
 );
+CREATE TABLE IF NOT EXISTS models (
+   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS parameter_model (
+   parameter_id BIGINT,
+   model_id BIGINT,
+   PRIMARY KEY (parameter_id, model_id),
+   FOREIGN KEY (parameter_id) REFERENCES parameters(id),
+   FOREIGN KEY (model_id) REFERENCES models(id)
+);
+
 -- Create the functions table
 CREATE TABLE IF NOT EXISTS functions
 (
@@ -91,6 +105,13 @@ CREATE TABLE IF NOT EXISTS points
     FOREIGN KEY (parent_parameter_id) REFERENCES parameters (id),
     FOREIGN KEY (related_parameter_id) REFERENCES parameters (id)
 );
+
+-- Create indexes to speed up searching
+CREATE INDEX idx_functions_parent_parameter ON functions (parent_parameter_id);
+CREATE INDEX idx_functions_related_parameter ON functions (related_parameter_id);
+CREATE INDEX idx_points_parent_parameter ON points (parent_parameter_id);
+CREATE INDEX idx_points_related_parameter ON points (related_parameter_id);
+
 -- Insert data into the units table
 INSERT INTO units (name, abbreviation)
 VALUES ('Kelvin', 'K');
@@ -135,20 +156,28 @@ VALUES (1, 1),
 
 
 INSERT INTO points (x, y, parent_parameter_id)
-VALUES (0, 6000, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (4.24, 2961.93, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (3223.77, 2392.92, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (5421.22, 2219.01, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (25658.23, 2098.45, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (27906.79, 2038.47, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (30155.35, 1928.86, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (32506.11, 1699.61, 1);
-INSERT INTO points (x, y, parent_parameter_id)
-VALUES (33528.18, 225.01, 1);
+VALUES
+       (0, 6000, 1),
+       (4.24, 2961.93, 1),
+       (3223.77, 2392.92, 1),
+       (5421.22, 2219.01, 1),
+       (25658.23, 2098.45, 1),
+       (27906.79, 2038.47, 1),
+       (30155.35, 1928.86, 1),
+       (32506.11, 1699.61, 1),
+       (33528.18, 225.01, 1);
+
+-- Create a new model
+INSERT INTO models (name, description)
+VALUES ('Earth after Moon formation', 'A model describing Earth after the formation of the Moon, including parameters for temperature, test parameter Ta, and pressure');
+
+-- Retrieve the IDs of the parameters to be added to the model
+SELECT id FROM parameters WHERE abbreviation IN ('T', 'Ta', 'P');
+
+-- Assuming the retrieved IDs are 1, 2, and 4 for the parameters 'T', 'Ta', and 'P' respectively
+INSERT INTO parameter_model (parameter_id, model_id)
+VALUES
+    (1, 1),
+    (2, 1),
+    (4, 1);
+

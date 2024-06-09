@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Split Screen with Bootstrap</title>
+    <title>Timeline | Parameters</title>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
@@ -22,21 +22,15 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 
 
-    <script src="index.js"></script>
-    <link rel="stylesheet" href="mathquill.css"/>
-    <script src="mathquill.js"></script>
+    <script src="parameters.js"></script>
+    <link rel="stylesheet" href="../mathquill.css"/>
+    <script src="../mathquill.js"></script>
+    <link href="../styles.css" rel="stylesheet">
 
     <style>
-        .navbar {
-            position: fixed;
-            width: 100%;
-            z-index: 1000;
-            top: 0;
-        }
         .split-screen {
             display: flex;
             height: 100vh;
-            padding-top: 56px; /* Отступ сверху для учета высоты панели меню */
         }
 
         .left-side,
@@ -59,8 +53,8 @@
         .chart-container {
             margin-bottom: 3%;
             padding: 3%;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: #f7f7f7;
+
             overflow: hidden;
             position: sticky;
             top: 0; /* Начинается на высоте панели меню */
@@ -75,30 +69,19 @@
 <div class="container-fluid" ng-controller="indexController">
 
     <!-- Добавленная панель -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Menu</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <div id="navbar-placeholder"></div>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Main <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <!-- Кнопка для добавления нового параметра -->
-                    <a class="nav-link" href="#" ng-click="openNewParameterModal()">Add new parameter</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <script>
+        $(function () {
+            $("#navbar-placeholder").load("../navbar.html");
+        });
+    </script>
 
     <div class="row split-screen">
         <div class="col-md-6 left-side">
             <!-- Left side of the page -->
             <h2>Parameter list</h2>
+            <a class="btn btn-primary ml-auto" href="#" ng-click="openNewParameterModal()">Add new parameter</a>
 
             <table class="table table-hover" cellpadding="0" cellspacing="0">
                 <thead>

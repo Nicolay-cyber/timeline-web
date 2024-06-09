@@ -25,10 +25,13 @@ public class ParameterController {
 
     @GetMapping
     public List<ParameterDto> getAllParameters() {
-        return parameterService.getAllParameters()
+        System.out.println("Received the request for all parameters");
+        List<ParameterDto> parameters= parameterService.getAllParameters()
                 .stream()
                 .map(parameter -> parameterConvector.toDto(parameter))
                 .collect(Collectors.toList());
+        System.out.println("Found parameters: " + parameters);
+        return parameters;
     }
 
 

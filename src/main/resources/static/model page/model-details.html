@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="timeline">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline | Model Details</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+
+    <script src="models.js"></script>
+    <link href="../styles.css" rel="stylesheet">
+
+    <style>
+        .parameter-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .parameter-header {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-bottom: 1px solid #ddd;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container-fluid" ng-controller="modelDetailsController">
+    <div id="navbar-placeholder"></div>
+    <script>
+        $(function () {
+            $("#navbar-placeholder").load("../navbar.html");
+        });
+    </script>
+
+    <h1>{{model.name}}</h1>
+    <div>
+        <p> {{model.description}}</p>
+        <h3>Parameters:</h3>
+        <div ng-repeat="parameter in model.parameters" class="parameter-container">
+            <div class="parameter-header">
+                <h4>{{parameter.name}} ({{parameter.abbreviation}})</h4>
+            </div>
+            <p><strong>Unit:</strong> {{parameter.unit.name}} ({{parameter.unit.abbreviation}})</p>
+            <p>{{parameter.description}}</p>
+
+            <div ng-if="parameter.functions.length">
+                <h5>Functions:</h5>
+                <ul>
+                    <li ng-repeat="func in parameter.functions">
+                        <p><strong>Interval:</strong> {{func.startPoint}} - {{func.endPoint}}</p>
+                        <p> {{func.expression}}</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
