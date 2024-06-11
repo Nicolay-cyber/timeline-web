@@ -168,7 +168,7 @@
                         </div>
                         <div class="form-group">
                             <label for="newFormulaField">Function</label>
-                            <p><span id="newFormulaField">x=</span></p>
+                            <p><span id="newFormulaField" ng-model="newFunction.expression">x=</span></p>
                         </div>
                         <div class="form-group">
                             <label for="newFormulaRelatedParameterField">Related parameter IDs</label>
@@ -183,7 +183,13 @@
                         <!-- Display list of functions -->
 
                         <!-- Display list of functions -->
-                        <ul id="newParameterFunctionList" class="list-group">
+                        <ul class="list-group mt-3">
+                            <li class="list-group-item" ng-repeat="func in newParameter.functions">
+                                Interval: {{func.startPoint}} - {{func.endPoint}}<br>
+                                <span ng-bind-html="renderMath(func.expression)"></span>
+                                <button type="button" class="btn btn-warning btn-sm float-right ml-2" ng-click="editFunction($index)">Edit</button>
+                                <button type="button" class="btn btn-danger btn-sm float-right" ng-click="deleteFunction($index)">Delete</button>
+                            </li>
                         </ul>
 
 

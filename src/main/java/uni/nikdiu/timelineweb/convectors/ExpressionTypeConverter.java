@@ -15,13 +15,81 @@ public class ExpressionTypeConverter {
     public String classicToLatex(String classicExpression) {
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
 
+        classicExpression = replaceDivision(classicExpression);
+
         classicExpression = replaceOperators(classicExpression);
 
         classicExpression = replaceFunctions(classicExpression);
-        classicExpression = replacePowers(classicExpression);
+        //classicExpression = replacePowers(classicExpression);
         return "\\[" + classicExpression + "\\]";
     }
 
+    private String replaceDivision(String classicExpression) {
+// Найти индекс знака деления
+        int divisionIndex = classicExpression.indexOf("/");
+        if (divisionIndex == -1) {
+            // Если знак деления не найден, вернуть исходное выражение
+            return classicExpression;
+        }
+
+        // Найти позицию начала числителя
+        int startNumerator = findStartNumerator(classicExpression, divisionIndex);
+        // Найти позицию конца числителя
+        int endNumerator = divisionIndex - 1;
+
+        // Найти позицию начала знаменателя
+        int startDenominator = divisionIndex + 1;
+        // Найти позицию конца знаменателя
+        int endDenominator = findEndDenominator(classicExpression, divisionIndex);
+
+        // Получить числитель и знаменатель
+        String numerator = classicExpression.substring(startNumerator, endNumerator + 1);
+        String denominator = classicExpression.substring(startDenominator, endDenominator + 1);
+
+        // Сформировать строку с отформатированным знаком деления
+        String formattedDivision = " \\frac{" + numerator.trim() + "}{" + denominator.trim() + "} ";
+
+        // Заменить подстроку с делением на отформатированную строку
+        return classicExpression.substring(0, startNumerator) + formattedDivision + classicExpression.substring(endDenominator + 1);
+
+
+    }
+    // Метод для поиска позиции начала числителя
+    private int findStartNumerator(String classicExpression, int divisionIndex) {
+        int bracketCount = 0;
+        for (int i = divisionIndex - 1; i >= 0; i--) {
+            char currentChar = classicExpression.charAt(i);
+            if (currentChar == ')') {
+                bracketCount++;
+            } else if (currentChar == '(') {
+                bracketCount--;
+            } else if (bracketCount == 0 && (currentChar == '+' || currentChar == '-' || currentChar == '*' || currentChar == '/' || currentChar == '|')) {
+                // Найдено начало числителя, если встречается оператор и не внутри скобок
+                return i + 1;
+            }
+        }
+        // Начало числителя - начало строки
+        return 0;
+    }
+
+    // Метод для поиска позиции конца знаменателя
+    private int findEndDenominator(String classicExpression, int divisionIndex) {
+        int bracketCount = 0;
+        for (int i = divisionIndex + 1; i < classicExpression.length(); i++) {
+            char currentChar = classicExpression.charAt(i);
+            if (currentChar == '(') {
+                bracketCount++;
+            } else if (currentChar == ')') {
+                bracketCount--;
+                if (bracketCount == 0) {
+                    // Найден конец знаменателя, если закрывающая скобка и не внутри скобок
+                    return i;
+                }
+            }
+        }
+        // Конец знаменателя - конец строки
+        return classicExpression.length() - 1;
+    }
 
     private String replaceOperators(String expression) {
         expression = expression.replaceAll("\\*", " \\\\cdot ");
@@ -29,6 +97,8 @@ public class ExpressionTypeConverter {
         expression = expression.replaceAll("\\+", " + ");
         expression = expression.replaceAll("\\|", " \\\\left| ");
         expression = expression.replaceAll("\\|", " \\\\right| ");
+        expression = expression.replaceAll("\\(", " { ");
+        expression = expression.replaceAll("\\)", " } ");
         return expression;
     }
 

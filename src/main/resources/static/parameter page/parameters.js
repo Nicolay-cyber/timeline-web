@@ -1,22 +1,8 @@
-angular.module('timeline', []).controller('indexController', function ($scope, $http, $sce) {
+angular.module('timeline', []).controller('indexController', function ($scope, $http, $sce, $timeout) {
     // Set the context path based on the environment
     //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
     //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
-
-    // Initialize new parameter object
-    $scope.newParameter = {
-        name: '',
-        abbreviation: '',
-        description: '',
-        functions: []
-    };
-
-    $scope.newFunction = {
-        startPoint: '',
-        endPoint: '',
-        expression: ''
-    };
 
     // Function to open the modal for adding a new parameter
     $scope.openNewParameterModal = function () {
@@ -42,25 +28,39 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
     };
     // Function to add a new function field
     $scope.addFunction = function () {
-        let newFunctionCopy = angular.copy($scope.newFunction);
-        newFunctionCopy.expression = '\\[' + answerMathField.latex() + '\\]'; // Capture the LaTeX from MathQuill
-        // Process relatedParameterIds string
-        newFunctionCopy.relatedParameterIds = $scope.processRelatedParameterIds($scope.newFunction.relatedParameterIds);
 
+        let newFunctionCopy = angular.copy($scope.newFunction);
+        newFunctionCopy.expression = '\\[' + answerMathField.latex() + '\\]';
+        newFunctionCopy.relatedParameterIds = $scope.processRelatedParameterIds($scope.newFunction.relatedParameterIds);
         $scope.newParameter.functions.push(newFunctionCopy);
 
-        // Clear MathQuill field
         answerMathField.latex('');
+        $scope.newFunction = {
+            startPoint: '',
+            endPoint: '',
+            expression: '',
+            relatedParameterIds: ''
+        };
 
-        // Iterate over each function, render it, and add it to the list
-        $scope.newParameter.functions.forEach(function (func) {
-            $('#newParameterFunctionList').append('<li class="list-group-item">' +
-                'Interval: ' + func.startPoint + ' - ' + func.endPoint + '<br>' + $scope.renderMath(func.expression)
-                + '</li>');
+        $timeout(function () {
+            MathJax.typesetPromise();
         });
-
+    };
+    $scope.editFunction = function (index) {
+        let func = $scope.newParameter.functions[index];
+        $scope.newFunction = angular.copy(func);
+        $scope.newFunction.relatedParameterIds = func.relatedParameterIds.join(', ');
+        answerMathField.latex(func.expression.replace('\\[', '').replace('\\]', ''));
+        $scope.newParameter.functions.splice(index, 1);
         $scope.$applyAsync(function () {
-            MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
+            MathJax.typesetPromise();
+        });
+    };
+
+    $scope.deleteFunction = function (index) {
+        $scope.newParameter.functions.splice(index, 1); // Удалить функцию
+        $scope.$applyAsync(function () {
+            MathJax.typesetPromise();
         });
     };
 // Function to load parameters
@@ -155,7 +155,9 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
                 }
 
                 $scope.$applyAsync(function () {
-                    MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
+                    if (typeof MathJax !== 'undefined') {
+                        MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
+                    }
                 });
 
                 // Update the ID of the current parameter
