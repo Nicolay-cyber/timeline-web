@@ -14,7 +14,6 @@ public class ModelService {
     private final ModelRepository modelRepository;
 
     public List<Model> getAllModels() {
-        System.out.println("found models: " + modelRepository.findAll());
         return modelRepository.findAll();
     }
 

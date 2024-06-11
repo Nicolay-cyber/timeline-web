@@ -9,6 +9,7 @@ import uni.nikdiu.timelineweb.dtos.ParameterDto;
 import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
 import uni.nikdiu.timelineweb.services.ParameterService;
+import uni.nikdiu.timelineweb.services.UnitService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class ParameterController {
     private final ParameterService parameterService;
     private final ParameterConvector parameterConvector;
+    private final UnitService unitService;
 
     @GetMapping
     public List<ParameterDto> getAllParameters() {
@@ -38,6 +40,7 @@ public class ParameterController {
     @PostMapping()
     public ParameterDto addParameter(@RequestBody ParameterDto parameterDto) {
 
+        System.out.println("Received request to save parameter: " + parameterDto);
 
         Map<FunctionDto, List<Parameter>> relatedParameters = parameterDto.getFunctions().stream().collect(Collectors.toMap(f ->
                         f,
@@ -53,10 +56,10 @@ public class ParameterController {
         ));
 
         Parameter parameter = parameterConvector.toEntity(parameterDto,relatedParameters);
-        System.out.println("Received parameterDto: " + parameterDto);
-        System.out.println("Converted entity: " + parameter);
+        parameter.setUnit(unitService.getUnitById(parameterDto.getUnit().getId()));
 
         parameter = parameterService.save(parameter);
+
         System.out.println("new parameter is saved: " + parameter);
         return parameterConvector.toDto(parameter);
     }

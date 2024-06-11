@@ -49,13 +49,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
         $scope.newParameter.functions.push(newFunctionCopy);
 
-        $scope.newFunction = {
-            startPoint: '',
-            endPoint: '',
-            expression: '',
-            relatedParameterIds: []
-        };
-
         // Clear MathQuill field
         answerMathField.latex('');
 
