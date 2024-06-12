@@ -32,11 +32,10 @@ public class Parameter {
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
-    @OneToMany(mappedBy = "parentParameter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentParameter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Function> functions;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_parameter_id")
+    @OneToMany(mappedBy = "parentParameter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Point> points;
 
     public Parameter(Long id, String name, String description, String abbreviation) {
@@ -46,5 +45,15 @@ public class Parameter {
         this.abbreviation = abbreviation;
         this.points = new ArrayList<>();
         this.functions = new ArrayList<>();
+    }
+    @Override
+    public String toString() {
+        return "Parameter{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", abbreviation='" + abbreviation + '\'' +
+                ", unit=" + (unit != null ? unit.getName() : null) +  // Example using unit name
+                '}';
     }
 }

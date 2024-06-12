@@ -36,6 +36,37 @@ public class ParameterController {
         return parameters;
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteParameter(@PathVariable Long id) {
+        parameterService.deleteParameter(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ParameterDto> editParameter(@PathVariable Long id, @RequestBody ParameterDto parameterDto) {
+        System.out.println("Received request to update parameter: " + parameterDto);
+
+        Map<FunctionDto, List<Parameter>> relatedParameters = parameterDto.getFunctions().stream().collect(Collectors.toMap(f ->
+                        f,
+                f -> {
+                    if (f.getRelatedParameterIds() != null) {
+                        return f.getRelatedParameterIds().stream()
+                                .map(parameterService::getParameterById)
+                                .collect(Collectors.toList());
+                    } else {
+                        return new ArrayList<>();
+                    }
+                }
+        ));
+
+        Parameter parameter = parameterConvector.toEntity(parameterDto, relatedParameters);
+        parameter.setUnit(unitService.getUnitById(parameterDto.getUnit().getId()));
+
+        parameter = parameterService.updateParameter(id, parameter);
+
+        System.out.println("Parameter updated: " + parameter);
+        return ResponseEntity.ok(parameterConvector.toDto(parameter));
+    }
 
     @PostMapping()
     public ParameterDto addParameter(@RequestBody ParameterDto parameterDto) {

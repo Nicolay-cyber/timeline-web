@@ -6,6 +6,7 @@ import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
 import uni.nikdiu.timelineweb.repositories.ModelRepository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -22,5 +23,9 @@ public class ModelService {
     }
     public Model save(Model model) {
         return modelRepository.save(model);
+    }
+
+    public Collection<Object> getAllModelsWithParameter(Parameter   parameter) {
+        return modelRepository.getAllByParameters(parameter);
     }
 }

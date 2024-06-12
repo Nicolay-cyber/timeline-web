@@ -23,6 +23,15 @@ public class Point {
     private Double y;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "related_parameter_id")
-    private Parameter relatedParameter;
+    @JoinColumn(name = "parent_parameter_id")
+    private Parameter parentParameter;
+    @Override
+    public String toString() {
+        return "Point{" +
+                "id=" + id +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
 }

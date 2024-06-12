@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
 
+import java.util.Collection;
+
 @Repository
 public interface ModelRepository extends JpaRepository<Model, Long>, JpaSpecificationExecutor<Model> {
+    Collection<Object> getAllByParameters(Parameter id);
 }

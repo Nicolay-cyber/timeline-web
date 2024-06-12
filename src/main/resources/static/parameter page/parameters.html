@@ -54,7 +54,6 @@
             margin-bottom: 3%;
             padding: 3%;
             background-color: #f7f7f7;
-
             overflow: hidden;
             position: sticky;
             top: 0; /* Начинается на высоте панели меню */
@@ -80,9 +79,10 @@
     <div class="row split-screen">
         <div class="col-md-6 left-side">
             <!-- Left side of the page -->
-            <h2>Parameter list</h2>
-            <a class="btn btn-primary ml-auto" href="#" ng-click="openNewParameterModal()">Add new parameter</a>
-
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Parameter list</h2>
+                <a class="btn btn-primary" href="#" ng-click="openNewParameterModal()">Add new parameter</a>
+            </div>
             <table class="table table-hover" cellpadding="0" cellspacing="0">
                 <thead>
                 <tr>
@@ -111,7 +111,11 @@
                 <canvas id="myChart"></canvas>
             </div>
             <div id="parameterDetails">
-                <h3 id="parameterTitle"></h3>
+                <div class="parameter-details">
+                    <h4 id="parameterTitle"></h4>
+                    <button class="btn btn-warning btn-sm" ng-click="editParameter(currentParameterId)">Edit</button>
+                    <button class="btn btn-danger btn-sm" ng-click="deleteParameter(currentParameterId)">Delete</button>
+                </div>
                 <p id="parameterDescription"></p>
                 <h4>Points</h4>
                 <div id="pointsList" class="d-flex flex-wrap">

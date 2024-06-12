@@ -24,7 +24,7 @@ public class Model {
     @Column(name = "description")
     private String description;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @JoinTable(
             name = "parameter_model",
             joinColumns = @JoinColumn(name = "model_id"),

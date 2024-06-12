@@ -84,6 +84,17 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         });
     };
 
+    // Function to delete the parameter
+    $scope.deleteParameter = function (parameterId) {
+        if (confirm('Are you sure you want to delete this parameter?')) {
+            $http.delete(contextPath + '/parameters/' + parameterId).then(function () {
+                console.log('parameter deleted successfully');
+                $scope.loadParameters();
+            });
+        }
+    };
+
+
     // Initialize Chart.js
     let ctx = document.getElementById("myChart").getContext("2d");
     let myChart = new Chart(ctx, {
@@ -117,12 +128,12 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
     });
 
     // Variable to store the ID of the currently displayed parameter
-    let currentParameterId = null;
+    $scope.currentParameterId = null;
 
     // Function to load graph data for a parameter
     $scope.loadGraphData = function (parameter) {
         // Check if the new parameter is different from the current one
-        if (parameter.id !== currentParameterId) {
+        if (parameter.id !== $scope.currentParameterId) {
             $http.get(contextPath + '/graph/' + parameter.id).then(function (response) {
 
 // Extract x and y values from points
@@ -161,7 +172,7 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
                 });
 
                 // Update the ID of the current parameter
-                currentParameterId = parameter.id;
+                $scope.currentParameterId = parameter.id;
             });
         }
     };

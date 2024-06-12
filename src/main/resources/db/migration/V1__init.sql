@@ -101,16 +101,14 @@ CREATE TABLE IF NOT EXISTS points
     x                    DOUBLE NOT NULL,
     y                    DOUBLE NOT NULL,
     parent_parameter_id  BIGINT NOT NULL,
-    related_parameter_id BIGINT,
-    FOREIGN KEY (parent_parameter_id) REFERENCES parameters (id),
-    FOREIGN KEY (related_parameter_id) REFERENCES parameters (id)
+    FOREIGN KEY (parent_parameter_id) REFERENCES parameters (id)
 );
 
 -- Create indexes to speed up searching
 CREATE INDEX idx_functions_parent_parameter ON functions (parent_parameter_id);
 CREATE INDEX idx_functions_related_parameter ON functions (related_parameter_id);
 CREATE INDEX idx_points_parent_parameter ON points (parent_parameter_id);
-CREATE INDEX idx_points_related_parameter ON points (related_parameter_id);
+
 
 -- Insert data into the units table
 INSERT INTO units (name, abbreviation)
