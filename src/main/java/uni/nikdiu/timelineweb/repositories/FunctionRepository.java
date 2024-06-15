@@ -5,11 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import uni.nikdiu.timelineweb.entities.Function;
+import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
-public interface ParameterRepository extends JpaRepository<Parameter, Long>, JpaSpecificationExecutor<Parameter> {
-    Collection<Object> getAllByRelatedFunctions(Function function);
+public interface FunctionRepository extends JpaRepository<Function, Long>, JpaSpecificationExecutor<Function> {
+    List<Function> getAllByRelatedParameters(Parameter parameter);
 }

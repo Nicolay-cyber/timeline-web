@@ -3,9 +3,6 @@ package uni.nikdiu.timelineweb.convectors;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 @Component
 @NoArgsConstructor
@@ -13,6 +10,9 @@ public class ExpressionTypeConverter {
 
 
     public String classicToLatex(String classicExpression) {
+        System.out.println("Converting classic syntax to latex expression ");
+        System.out.println("Classic expression: " + classicExpression);
+
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
 
         classicExpression = replaceDivision(classicExpression);
@@ -20,7 +20,11 @@ public class ExpressionTypeConverter {
         classicExpression = replaceOperators(classicExpression);
 
         classicExpression = replaceFunctions(classicExpression);
-        //classicExpression = replacePowers(classicExpression);
+
+        classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
+        classicExpression = classicExpression.replaceAll("cdot", "cdot ");
+
+        System.out.println("Latex expression: " + classicExpression);
         return "\\[" + classicExpression + "\\]";
     }
 
@@ -54,6 +58,7 @@ public class ExpressionTypeConverter {
 
 
     }
+
     // Метод для поиска позиции начала числителя
     private int findStartNumerator(String classicExpression, int divisionIndex) {
         int bracketCount = 0;
@@ -92,13 +97,16 @@ public class ExpressionTypeConverter {
     }
 
     private String replaceOperators(String expression) {
-        expression = expression.replaceAll("\\*", " \\\\cdot ");
-        expression = expression.replaceAll("/", " / ");
-        expression = expression.replaceAll("\\+", " + ");
-        expression = expression.replaceAll("\\|", " \\\\left| ");
-        expression = expression.replaceAll("\\|", " \\\\right| ");
-        expression = expression.replaceAll("\\(", " { ");
-        expression = expression.replaceAll("\\)", " } ");
+        expression = expression.replaceAll("\\*", "\\\\cdot");
+
+        expression = expression.replaceAll("\\|", "\\\\left|");
+        expression = expression.replaceAll("\\|", "\\\\right|");
+
+        expression = expression.replaceAll("\\(", "{");
+        expression = expression.replaceAll("\\)", "}");
+
+        expression = expression.replaceAll("\\}  \\}", " \\\\right\\)");
+        expression = expression.replaceAll("\\{  \\{", " \\\\left\\(");
         return expression;
     }
 
@@ -111,60 +119,115 @@ public class ExpressionTypeConverter {
         return expression;
     }
 
-
-    private String replacePowers(String expression) {
-        Pattern pattern = Pattern.compile("([a-zA-Z0-9.]+)\\^([a-zA-Z0-9.]+)");
-        Matcher matcher = pattern.matcher(expression);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, "{" + matcher.group(1) + "}^{" + matcher.group(2) + "}");
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
-    }
-
     //From LaTeX to classic syntax
 
     public String latexToClassic(String latexExpression) {
+
+        System.out.println("Converting latex expression to classic syntax");
+        System.out.println("Latex expression: " + latexExpression);
         // Remove LaTeX delimiters
-        System.out.println();
-        System.out.println("row latexExpression: " + latexExpression);
         latexExpression = latexExpression.replaceAll("\\\\\\[", "");
         latexExpression = latexExpression.replaceAll("\\\\]", "");
-        System.out.println("latexExpression: " + latexExpression);
 
-        latexExpression = latexExpression.replaceAll("\\\\left\\(", "(");
-        latexExpression = latexExpression.replaceAll("\\\\right\\)", ")");
+        latexExpression = latexExpression.replaceAll("\\\\left\\(", "((");
+        latexExpression = latexExpression.replaceAll("\\\\right\\)", "))");
 
+        latexExpression = handlePowerSighs(latexExpression);
         latexExpression = latexExpression.replaceAll("\\{", "(");
         latexExpression = latexExpression.replaceAll("\\}", ")");
 
-        System.out.println("latexExpression (replaced brackets): " + latexExpression);
         // Reverse replace divisions
         while (latexExpression.contains("frac")) {
             latexExpression = reverseReplaceDivisions(latexExpression);
         }
-        System.out.println("latexExpression (reverseReplaceDivisions): " + latexExpression);
 
 
         // Reverse replace functions
         latexExpression = reverseReplaceFunctions(latexExpression);
-        System.out.println("latexExpression (reverseReplaceFunctions): " + latexExpression);
 
         // Reverse replace operators
         latexExpression = reverseReplaceOperators(latexExpression);
-        System.out.println("latexExpression (reverseReplaceOperators): " + latexExpression);
 
 
         latexExpression = latexExpression.replaceAll("\\(", " ( ");
         latexExpression = latexExpression.replaceAll("\\)", " ) ");
 
+        latexExpression = handleNegativeSigns(latexExpression);
+
         while (latexExpression.contains("  ")) {
             latexExpression = latexExpression.replaceAll(" {2}", " ");
         }
         latexExpression = latexExpression.trim();
-        System.out.println("latexExpression (final version): " + latexExpression);
+        System.out.println("Classic expression: " + latexExpression);
         return latexExpression;
+    }
+
+    public String handlePowerSighs(String latexExpression) {
+        StringBuilder result = new StringBuilder();
+        int length = latexExpression.length();
+        for (int i = 0; i < length; i++) {
+            char currentChar = latexExpression.charAt(i);
+
+            if (currentChar == '^') {
+                System.out.println("power sigh is found");
+                System.out.println("result: " + result);
+                result.append(currentChar);
+                System.out.println("result: " + result);
+
+                // Если следующий символ не '{'
+                if (i + 1 < length && latexExpression.charAt(i + 1) != '{') {
+                    result.append('(');
+                    System.out.println("result: " + result);
+                    // Пройти дальше до пробела или оператора
+                    i++;
+                    while (i < length && !isOperator(latexExpression.charAt(i))) {
+                        System.out.println("result: " + result);
+                        result.append(latexExpression.charAt(i));
+                        i++;
+                    }
+
+                    result.append(')');
+
+                    // Шаг назад, чтобы не пропустить текущий символ
+                    i--;
+                }
+            } else {
+                result.append(currentChar);
+            }
+        }
+
+        return result.toString();
+    }
+
+    private String handleNegativeSigns(String expression) {
+        StringBuilder result = new StringBuilder();
+        boolean previousIsOperator = true; // Указывает, что предыдущий символ был оператором
+
+        for (int i = 0; i < expression.length(); i++) {
+            char currentChar = expression.charAt(i);
+            if (currentChar == '-') {
+                // Проверка, является ли текущий минус знаком отрицательности или оператором
+                if (previousIsOperator) {
+                    result.append("-"); // Знак отрицательности
+                } else {
+                    result.append(" - "); // Оператор
+                }
+                previousIsOperator = false;
+            } else if (isOperator(currentChar)) {
+                result.append(" ").append(currentChar).append(" ");
+                previousIsOperator = true;
+            } else {
+                result.append(currentChar);
+                if (currentChar != ' ') {
+                    previousIsOperator = false;
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    private boolean isOperator(char c) {
+        return c == '+' || c == '-' || c == '*' || c == '\\' || c == '/' || c == '^' || c == '(';
     }
 
     private String reverseReplaceDivisions(String input) {
@@ -206,22 +269,6 @@ public class ExpressionTypeConverter {
 
         // Заменить подстроку с \frac и аргументами на отформатированную строку
         return input.substring(0, startIndex) + formattedFraction + input.substring(i + 1);
-    }
-
-
-    private static int findClosingBracket(String input, int start) {
-        int bracketCount = 0;
-        for (int i = start; i < input.length(); i++) {
-            if (input.charAt(i) == '(') {
-                bracketCount++;
-            } else if (input.charAt(i) == ')') {
-                bracketCount--;
-                if (bracketCount == 0) {
-                    return i;
-                }
-            }
-        }
-        return -1;
     }
 
 

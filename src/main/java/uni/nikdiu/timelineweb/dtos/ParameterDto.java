@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uni.nikdiu.timelineweb.entities.Point;
 
+import java.util.ArrayList;
 import java.util.List;
 @Data
 @NoArgsConstructor
@@ -15,7 +16,7 @@ public class ParameterDto {
     private String description;
     private String abbreviation;
     private UnitDto unit;
-    private List<FunctionDto> functions;
-    private List<PointDto> points;
+    private List<FunctionDto> functions= new ArrayList<>();
+    private List<PointDto> points= new ArrayList<>();
 
 }

@@ -74,22 +74,63 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         });
     };
 
-    // Function to add the new parameter
+    // Function to add the new parameter or edit the existing
     $scope.addParameter = function () {
-        $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
-            console.log('new parameter added successfully');
-            // Reload the parameters list after adding the new parameter
-            $scope.loadParameters(); // Добавить эту строку для обновления списка параметров
-            $('#addParameterModal').modal('hide');
+        if ($scope.newParameter.id) {
+            // Update existing parameter
+            $http.put(contextPath + '/parameters/' + $scope.newParameter.id, $scope.newParameter).then(function (response) {
+                console.log('Parameter updated successfully');
+                $scope.loadParameters(); // Reload parameters list
+                $('#addParameterModal').modal('hide');
+            });
+        } else {
+            // Add new parameter
+            $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
+                console.log('New parameter added successfully');
+                $scope.loadParameters(); // Reload parameters list
+                $('#addParameterModal').modal('hide');
+            });
+        }
+    };
+    $scope.editParameter = function (parameterId) {
+        // Fetch the parameter details from API or use existing data
+        // Assuming you have a way to fetch parameter details by ID
+
+        $scope.newParameter = $scope.currentParameter // Assuming response.data contains parameter details
+
+        $scope.isEditing = true; // Set editing flag
+        $('#addParameterModal').modal('show');
+        $timeout(function () {
+            MathJax.typeset();
+        }, 0);
+    };
+
+
+    $scope.confirmDeleteParameter = function (parameterId) {
+        $http.get(contextPath + '/parameters/' + parameterId + '/dependent-functions').then(function (response) {
+            $scope.dependentFunctions = response.data;
+            $scope.parameterToDelete = parameterId;
+
+            // Check if there are dependent functions to display the modal
+            if ($scope.dependentFunctions.length > 0) {
+                $('#confirmDeleteModal').modal('show');
+                $timeout(function () {
+                    MathJax.typeset();
+                }, 0);
+            } else {
+                // If no dependent functions, directly delete
+                $scope.deleteParameter();
+            }
         });
     };
 
     // Function to delete the parameter
-    $scope.deleteParameter = function (parameterId) {
+    $scope.deleteParameter = function () {
         if (confirm('Are you sure you want to delete this parameter?')) {
-            $http.delete(contextPath + '/parameters/' + parameterId).then(function () {
+            $http.delete(contextPath + '/parameters/' + $scope.parameterToDelete).then(function () {
                 console.log('parameter deleted successfully');
                 $scope.loadParameters();
+                $('#confirmDeleteModal').modal('hide');
             });
         }
     };
@@ -132,44 +173,18 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
 
     // Function to load graph data for a parameter
     $scope.loadGraphData = function (parameter) {
+        $scope.currentParameter = parameter;
+
         // Check if the new parameter is different from the current one
         if (parameter.id !== $scope.currentParameterId) {
             $http.get(contextPath + '/graph/' + parameter.id).then(function (response) {
 
-// Extract x and y values from points
-
-
                 // Update the chart, parameter title, and description
                 updateChart(response.data.labels, response.data.points, parameter.name, parameter.unit.abbreviation);
-                $('#parameterTitle').text(parameter.name + ' (' + parameter.abbreviation + '), ' + parameter.unit.abbreviation);
-                $('#parameterDescription').text(parameter.description);
-// Clear the points list before adding new items
-                $('#pointsList').empty();
-                // Add points to the points list
-                if (parameter.points && parameter.points.length > 0) {
-                    parameter.points.forEach(function (point) {
-                        $('#pointsList').append('<div class="point-item mr-2">' + ' (' + point.x + ', ' + point.y + ') ' + '</div>');
-                    });
-                } else {
-                    $('#pointsList').append('<p>No data</p>');
-                }
-                // Clear the function list before adding new items
-                $('#functionListHTML').empty();
 
-                // Iterate over each function, render it, and add it to the list
-                if (parameter.functions && parameter.functions.length > 0) {
-                    parameter.functions.forEach(function (func) {
-                        $('#functionListHTML').append('<li class="list-group-item">' + 'Inderval: ' + func.startPoint + ' - ' + func.endPoint + '<br>' + $scope.renderMath(func.expression) + '</li>');
-                    });
-                } else {
-                    $('#functionListHTML').append('<li class="list-group-item">No data</li>');
-                }
-
-                $scope.$applyAsync(function () {
-                    if (typeof MathJax !== 'undefined') {
-                        MathJax.typesetPromise(); // Render MathJax after AngularJS has updated the DOM
-                    }
-                });
+                $timeout(function () {
+                    MathJax.typeset();
+                }, 0);
 
                 // Update the ID of the current parameter
                 $scope.currentParameterId = parameter.id;

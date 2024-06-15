@@ -22,6 +22,7 @@ public class FunctionConvector {
                 function.getStartPoint(),
                 function.getEndPoint(),
                 function.getParentParameter().getId(),
+                function.getParentParameter().getName(),
                 latexConvector.classicToLatex(function.getStringExpression()),
                 relatedParameters);
     }

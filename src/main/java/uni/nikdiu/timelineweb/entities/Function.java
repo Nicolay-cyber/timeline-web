@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,8 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Function {
-    @Transient
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,10 +41,10 @@ public class Function {
             joinColumns = @JoinColumn(name = "function_id"),
             inverseJoinColumns = @JoinColumn(name = "parameter_id")
     )
-    private List<Parameter> relatedParameters;
+    private List<Parameter> relatedParameters = new ArrayList<>();
 
     @Transient
-    private List<String> expression;
+    private List<String> expression = new ArrayList<>();
 
     public Function(Long id, Double startPoint, Double endPoint, String stringExpression, List<String> expression) {
         this.id = id;
@@ -57,7 +56,7 @@ public class Function {
 
     @Override
     public String toString() {
-        return "Function " + id + " (" + startPoint + ", " + endPoint + "): " + expression;
+        return "Function " + id + " (" + startPoint + ", " + endPoint + "): " + "string expression: " + stringExpression + "Expression list"+expression;
     }
 
 }

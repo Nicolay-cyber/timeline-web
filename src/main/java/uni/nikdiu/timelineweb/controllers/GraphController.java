@@ -23,6 +23,7 @@ public class GraphController {
     private final LineConvector lineConvector;
     @GetMapping("/{id}")
     public LineDto getLineByParameterId(@PathVariable Long id) {
+        System.out.println("Received request from for line for parameter  " + id);
         return lineConvector.toDto(graphService.getLineByParameterId(id));
     }
 }

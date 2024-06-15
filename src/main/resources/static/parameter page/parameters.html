@@ -59,6 +59,33 @@
             top: 0; /* Начинается на высоте панели меню */
             z-index: 999;
         }
+        .modal-body {
+            max-height: 60vh; /* Вы можете отрегулировать высоту по необходимости */
+            overflow-y: auto;
+        }
+
+        .math-container {
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: nowrap; /* Предотвращает перенос формулы на следующую строку */
+        }
+        .math-container {
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: nowrap; /* Предотвращает перенос формулы на следующую строку */
+            max-width: 100%; /* Ограничение максимальной ширины, чтобы предотвратить переполнение */
+        }
+
+        .modal-body {
+            max-height: 60vh; /* Вы можете отрегулировать высоту по необходимости */
+            overflow-y: auto;
+        }
+
+        /* Дополнительные стили для математических формул, чтобы они оставались в пределах контейнера */
+        .math-container > .mq-editable-field {
+            max-width: 100%; /* Ограничение максимальной ширины, чтобы предотвратить переполнение */
+        }
+
     </style>
 
 </head>
@@ -112,96 +139,130 @@
             </div>
             <div id="parameterDetails">
                 <div class="parameter-details">
-                    <h4 id="parameterTitle"></h4>
+                    <h4>{{ currentParameter.name }} ({{ currentParameter.abbreviation }}), {{ currentParameter.unit.abbreviation }}</h4>
                     <button class="btn btn-warning btn-sm" ng-click="editParameter(currentParameterId)">Edit</button>
-                    <button class="btn btn-danger btn-sm" ng-click="deleteParameter(currentParameterId)">Delete</button>
+                    <button class="btn btn-danger btn-sm" ng-click="confirmDeleteParameter(currentParameterId)">Delete</button>
                 </div>
-                <p id="parameterDescription"></p>
+                <p>{{ currentParameter.description }}</p>
                 <h4>Points</h4>
                 <div id="pointsList" class="d-flex flex-wrap">
-                    <!-- Points will be inserted here dynamically -->
+                    <div class="point-item mr-2" ng-repeat="point in currentParameter.points">
+                        ({{ point.x }}, {{ point.y }})
+                    </div>
+                    <p ng-if="!currentParameter.points || currentParameter.points.length === 0">No data</p>
                 </div>
+
 
                 <h4>Functions</h4>
                 <ul id="functionListHTML" class="list-group">
+                    <li class="list-group-item" ng-repeat="func in currentParameter.functions">
+                        Interval: {{func.startPoint}} - {{func.endPoint}}<br>
+                        <span ng-bind-html="renderMath(func.expression)"></span>
+                    </li>
+                    <li class="list-group-item" ng-if="!currentParameter.functions.length">No functions added yet</li>
                 </ul>
             </div>
         </div>
     </div>
-
-    <!-- Modal for adding new parameter -->
-    <div class="modal fade" id="addParameterModal" tabindex="-1" role="dialog" aria-labelledby="addParameterModalLabel"
-         aria-hidden="true" >
+    <!-- Modal for confirming parameter deletion -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addParameterModalLabel">Add new parameter</h5>
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Parameter Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>The following functions will be deleted along with this parameter:</p>
+                    <ul class="list-group">
+                        <li ng-repeat="func in dependentFunctions" class="list-group-item">
+                            <div>
+                                <p>Parent Parameter Name: {{func.parentParameterName}}</p>
+                                <p>Interval: {{func.startPoint}} - {{func.endPoint}}</p>
+                                <div class="math-container" ng-bind-html="renderMath(func.expression)"></div>
+                            </div>
+                            <!-- Add a separator between list items -->
+                            <hr ng-if="!$last">
+                        </li>
+                    </ul>
+                    <p>Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" ng-click="deleteParameter()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding and editing new parameter -->
+    <div class="modal fade" id="addParameterModal" tabindex="-1" role="dialog" aria-labelledby="addParameterModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addParameterModalLabel" ng-if="!isEditing">Добавить новый параметр</h5>
+                    <h5 class="modal-title" id="addParameterModalLabel" ng-if="isEditing">Редактировать параметр</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form>
+                        <input type="hidden" ng-model="newParameter.id">
                         <div class="form-group">
-                            <label for="parameterName">Parameter Name</label>
+                            <label for="parameterName">Название параметра</label>
                             <input type="text" class="form-control" id="parameterName" ng-model="newParameter.name">
                         </div>
                         <div class="form-group">
-                            <label for="parameterAbbreviation">Parameter Abbreviation</label>
-                            <input type="text" class="form-control" id="parameterAbbreviation"
-                                   ng-model="newParameter.abbreviation">
+                            <label for="parameterAbbreviation">Аббревиатура параметра</label>
+                            <input type="text" class="form-control" id="parameterAbbreviation" ng-model="newParameter.abbreviation">
                         </div>
                         <div class="form-group">
-                            <label for="newParameterDescription">Parameter Description</label>
-                            <textarea class="form-control" id="newParameterDescription" rows="3"
-                                      ng-model="newParameter.description"></textarea>
+                            <label for="newParameterDescription">Описание параметра</label>
+                            <textarea class="form-control" id="newParameterDescription" rows="3" ng-model="newParameter.description"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="newFormulaRelatedParameterField">Unit ID</label>
-                            <input type="text" class="form-control" id="newParameterUnitId"
-                                   ng-model="newParameter.unit.id">
+                            <label for="newParameterUnitId">ID единицы измерения</label>
+                            <input type="text" class="form-control" id="newParameterUnitId" ng-model="newParameter.unit.id">
                         </div>
-                        <!-- Function Fields -->
+                        <!-- Поля функций -->
                         <div class="form-group">
-                            <label for="startPoint">Start Point</label>
+                            <label for="startPoint">Начальная точка</label>
                             <input type="text" class="form-control" id="startPoint" ng-model="newFunction.startPoint">
                         </div>
                         <div class="form-group">
-                            <label for="endPoint">End Point</label>
+                            <label for="endPoint">Конечная точка</label>
                             <input type="text" class="form-control" id="endPoint" ng-model="newFunction.endPoint">
                         </div>
                         <div class="form-group">
-                            <label for="newFormulaField">Function</label>
+                            <label for="newFormulaField">Функция</label>
                             <p><span id="newFormulaField" ng-model="newFunction.expression">x=</span></p>
                         </div>
                         <div class="form-group">
-                            <label for="newFormulaRelatedParameterField">Related parameter IDs</label>
-                            <input type="text" class="form-control" id="newFormulaRelatedParameterField"
-                                   ng-model="newFunction.relatedParameterIds">
+                            <label for="newFormulaRelatedParameterField">Связанные ID параметров</label>
+                            <input type="text" class="form-control" id="newFormulaRelatedParameterField" ng-model="newFunction.relatedParameterIds">
                         </div>
 
-                        <button id="addFunctionButton" class="btn btn-primary" type="button" ng-click="addFunction()">
-                            Add
-                            Function
-                        </button>
-                        <!-- Display list of functions -->
+                        <button id="addFunctionButton" class="btn btn-primary" type="button" ng-click="addFunction()">Добавить функцию</button>
 
-                        <!-- Display list of functions -->
+                        <!-- Отображение списка функций -->
                         <ul class="list-group mt-3">
                             <li class="list-group-item" ng-repeat="func in newParameter.functions">
-                                Interval: {{func.startPoint}} - {{func.endPoint}}<br>
+                                Интервал: {{func.startPoint}} - {{func.endPoint}}<br>
                                 <span ng-bind-html="renderMath(func.expression)"></span>
-                                <button type="button" class="btn btn-warning btn-sm float-right ml-2" ng-click="editFunction($index)">Edit</button>
-                                <button type="button" class="btn btn-danger btn-sm float-right" ng-click="deleteFunction($index)">Delete</button>
+                                <button type="button" class="btn btn-warning btn-sm float-right ml-2" ng-click="editFunction($index)">Редактировать</button>
+                                <button type="button" class="btn btn-danger btn-sm float-right" ng-click="deleteFunction($index)">Удалить</button>
                             </li>
                         </ul>
-
-
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" ng-click="addParameter()">Add</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="!isEditing">Добавить</button>
+                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Сохранить изменения</button>
                 </div>
             </div>
         </div>

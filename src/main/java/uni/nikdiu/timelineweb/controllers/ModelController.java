@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uni.nikdiu.timelineweb.convectors.ModelConvector;
 import uni.nikdiu.timelineweb.dtos.ModelDto;
-import uni.nikdiu.timelineweb.dtos.ParameterDto;
 import uni.nikdiu.timelineweb.services.ModelService;
-import uni.nikdiu.timelineweb.services.ParameterService;
 
 import java.util.List;
 import java.util.stream.Collectors;

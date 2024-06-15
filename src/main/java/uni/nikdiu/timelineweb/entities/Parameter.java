@@ -33,10 +33,17 @@ public class Parameter {
     private Unit unit;
 
     @OneToMany(mappedBy = "parentParameter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Function> functions;
+    private List<Function> functions= new ArrayList<>();
 
     @OneToMany(mappedBy = "parentParameter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Point> points;
+    private List<Point> points= new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "function_parameters",
+            joinColumns = @JoinColumn(name = "parameter_id"),
+            inverseJoinColumns = @JoinColumn(name = "function_id")
+    )
+    private List<Function> relatedFunctions= new ArrayList<>();
 
     public Parameter(Long id, String name, String description, String abbreviation) {
         this.id = id;
@@ -46,14 +53,43 @@ public class Parameter {
         this.points = new ArrayList<>();
         this.functions = new ArrayList<>();
     }
+
     @Override
     public String toString() {
-        return "Parameter{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", abbreviation='" + abbreviation + '\'' +
-                ", unit=" + (unit != null ? unit.getName() : null) +  // Example using unit name
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("Parameter{")
+                .append("id=").append(id)
+                .append(", name='").append(name).append('\'')
+                .append(", description='").append(description).append('\'')
+                .append(", abbreviation='").append(abbreviation).append('\'')
+                .append(", unit=").append(unit != null ? unit.getName() : null);
+
+        // Append descriptions of incoming functions
+        if (functions != null && !functions.isEmpty()) {
+            sb.append(", functions=[");
+            for (Function function : functions) {
+                sb.append("{").append(function).append("'}, ");
+            }
+            sb.delete(sb.length() - 2, sb.length()); // Remove the last comma and space
+            sb.append("]");
+        } else {
+            sb.append(", functions=[]");
+        }
+
+        // Append descriptions of incoming points
+        if (points != null && !points.isEmpty()) {
+            sb.append(", points=[");
+            for (Point point : points) {
+                sb.append("{").append(point).append("'}, ");
+            }
+            sb.delete(sb.length() - 2, sb.length()); // Remove the last comma and space
+            sb.append("]");
+        } else {
+            sb.append(", points=[]");
+        }
+
+        sb.append('}');
+        return sb.toString();
     }
+
 }

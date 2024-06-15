@@ -3,10 +3,12 @@ package uni.nikdiu.timelineweb.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
 import uni.nikdiu.timelineweb.repositories.ParameterRepository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -14,6 +16,7 @@ import java.util.List;
 public class ParameterService {
     private final ParameterRepository parameterRepository;
     private final ModelService modelService;
+    private final FunctionService functionService;
 
     public List<Parameter> getAllParameters() {
         return parameterRepository.findAll();
@@ -39,18 +42,30 @@ public class ParameterService {
         for (Model model : models) {
             modelService.save(model);
         }
+        //collect all functions which depend on this parameter
+        List<Function> functions = functionService.getAllFunctionsWithParameter(parameter);
 
+        //remove collected functions
+        for (Function function : functions) {
+            functionService.remove(function);
+        }
         parameterRepository.delete(parameter);
+        System.out.println("Parameter deleted");
     }
 
     public Parameter updateParameter(Long id, Parameter parameterDetails) {
+        System.out.println("Entity for updating:\n" + parameterDetails);
+
         Parameter parameter = getParameterById(id);
 
         parameter.setName(parameterDetails.getName());
         parameter.setAbbreviation(parameterDetails.getAbbreviation());
         parameter.setDescription(parameterDetails.getDescription());
-        parameter.setFunctions(parameterDetails.getFunctions());
         parameter.setUnit(parameterDetails.getUnit());
+
+        parameterDetails.getFunctions().forEach(function ->{
+            functionService.update(function);
+        });
 
         return parameterRepository.save(parameter);
     }

@@ -7,6 +7,7 @@ import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 @Component
@@ -88,7 +89,10 @@ public class Calculator {
     }
 
     private String replaceParameter(String parameterAbbr, List<Parameter> relatedParameters, List<Function> relatedFunctions, Double step) {
-        Parameter relatedParameter = relatedParameters.stream().filter(p -> p.getAbbreviation().equals(parameterAbbr)).findFirst().orElseThrow();
+        Parameter relatedParameter = relatedParameters.stream()
+                .filter(p -> p.getAbbreviation().equals(parameterAbbr))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Unable to find parameter with abbreviation: " + parameterAbbr));
 
         Function relatedFunction = relatedFunctions.stream()
                 .filter(f -> f.getParentParameter().getId().equals(

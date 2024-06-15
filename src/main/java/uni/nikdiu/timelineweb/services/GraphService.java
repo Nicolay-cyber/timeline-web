@@ -30,12 +30,9 @@ public class GraphService {
         //if the target parameter consists manually added point instead of function,
         // then locally create linear functions to get set of point from the same distance
         // and to use this function for subsequent calculations
-        System.out.println(targetParameter);
         if (!targetParameter.getPoints().isEmpty() && targetParameter.getPoints().size() > 1) {
             addNewCreatedFunctionsFromParameterPoints(targetParameter);
         }
-        System.out.println(targetParameter);
-
         //Set the step
         // Find the smallest and biggest start/end points among functions of the target parameter
         Optional<Double> smallestStartPoint = targetParameter.getFunctions().stream()
@@ -48,14 +45,11 @@ public class GraphService {
 
         double startPoint = smallestStartPoint.orElse(0.0);
         double endPoint = biggestEndPoint.orElse(0.0);
-        System.out.println(startPoint + " " + endPoint);
         // Set double step for 50 points
         double step = (endPoint - startPoint) / 50;
         List<Double> points = new ArrayList<>();
         List<Double> labels = new ArrayList<>();
         Calculator calculator = new Calculator();
-
-
 
 
         targetParameter.getFunctions().forEach(function -> {
@@ -73,9 +67,9 @@ public class GraphService {
             }
         });
 
-        Line line= new Line(targetParameter.getName(), points, labels);
-        System.out.println(line);
-return line;
+        Line line = new Line(targetParameter.getName(), points, labels);
+        System.out.println("Sent line:\n" + line);
+        return line;
     }
 
     public void addNewCreatedFunctionsFromParameterPoints(Parameter targetParameter) {

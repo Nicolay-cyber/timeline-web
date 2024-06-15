@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -11,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Line {
     private String parameterName;
-    private List<Double> points;
-    private List<Double> labels;
+    private List<Double> points= new ArrayList<>();
+    private List<Double> labels= new ArrayList<>();
 
     @Override
     public String toString() {
