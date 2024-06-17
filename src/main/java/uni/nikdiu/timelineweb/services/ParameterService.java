@@ -63,8 +63,12 @@ public class ParameterService {
         parameter.setDescription(parameterDetails.getDescription());
         parameter.setUnit(parameterDetails.getUnit());
 
-        parameterDetails.getFunctions().forEach(function ->{
-            functionService.update(function);
+        parameterDetails.getFunctions().forEach(function -> {
+            if (function.getId() == null) {
+                functionService.save(function);
+            } else {
+                functionService.update(function);
+            }
         });
 
         return parameterRepository.save(parameter);

@@ -24,35 +24,34 @@ public class GraphService {
         List<Parameter> relatedParameters = new ArrayList<>();
         //Find the target parameter
         Parameter targetParameter = parameterService.getParameterById(id);
-        targetParameter.getFunctions().forEach(f -> {
-            collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
-        });
-        //if the target parameter consists manually added point instead of function,
-        // then locally create linear functions to get set of point from the same distance
-        // and to use this function for subsequent calculations
         if (!targetParameter.getPoints().isEmpty() && targetParameter.getPoints().size() > 1) {
             addNewCreatedFunctionsFromParameterPoints(targetParameter);
         }
-        //Set the step
-        // Find the smallest and biggest start/end points among functions of the target parameter
-        Optional<Double> smallestStartPoint = targetParameter.getFunctions().stream()
+
+        List<Function> functionsCopy = new ArrayList<>(targetParameter.getFunctions());
+
+        functionsCopy.forEach(f -> {
+            collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
+        });
+
+
+
+        Optional<Double> smallestStartPoint = functionsCopy.stream()
                 .map(Function::getStartPoint)
                 .min(Double::compareTo);
 
-        Optional<Double> biggestEndPoint = targetParameter.getFunctions().stream()
+        Optional<Double> biggestEndPoint = functionsCopy.stream()
                 .map(Function::getEndPoint)
                 .max(Double::compareTo);
 
         double startPoint = smallestStartPoint.orElse(0.0);
         double endPoint = biggestEndPoint.orElse(0.0);
-        // Set double step for 50 points
         double step = (endPoint - startPoint) / 50;
         List<Double> points = new ArrayList<>();
         List<Double> labels = new ArrayList<>();
         Calculator calculator = new Calculator();
 
-
-        targetParameter.getFunctions().forEach(function -> {
+        functionsCopy.forEach(function -> {
             for (Double i = function.getStartPoint(); i <= function.getEndPoint(); i += step) {
                 Double y = calculator.calculate(
                         Arrays.asList(function.getStringExpression().split(" ")),
@@ -73,9 +72,9 @@ public class GraphService {
     }
 
     public void addNewCreatedFunctionsFromParameterPoints(Parameter targetParameter) {
-        List<Point> parameterPoints = targetParameter.getPoints();
+        List<Point> parameterPoints = new ArrayList<>(targetParameter.getPoints());
 
-        for (int i = 0; i < targetParameter.getPoints().size() - 1; i++) {
+        for (int i = 0; i < parameterPoints.size() - 1; i++) {
             Point endPoint = parameterPoints.get(i);
             Point startPoint = parameterPoints.get(i + 1);
 
@@ -94,6 +93,7 @@ public class GraphService {
         }
     }
 
+
     private boolean isValidNumber(Double number) {
         return !number.isNaN() && !number.isInfinite();
     }
@@ -108,7 +108,8 @@ public class GraphService {
         targetFunction.setExpression(Arrays.asList(targetFunction.getStringExpression().split(" ")));
         if (!relatedFunctions.contains(targetFunction)) {
             relatedFunctions.add(targetFunction);
-            targetFunction.getRelatedParameters().forEach(parameter -> {
+            List<Parameter> targetFunctionRelatedParameters = new ArrayList<>(targetFunction.getRelatedParameters());
+            for (Parameter parameter : targetFunctionRelatedParameters) {
                 Parameter relatedParameter = parameterService.getParameterById(parameter.getId());
                 if (!relatedParameter.getPoints().isEmpty() && relatedParameter.getPoints().size() > 1) {
                     addNewCreatedFunctionsFromParameterPoints(relatedParameter);
@@ -116,15 +117,14 @@ public class GraphService {
                 if (!relatedParameters.contains(relatedParameter)) {
                     relatedParameters.add(relatedParameter);
                 }
-                relatedParameter.getFunctions().forEach(f -> {
-                    //Collect all related functions which start and end points within target function start and end points
-                    if (!(endPoint < f.getStartPoint()
-                            || startPoint > f.getEndPoint())
-                    ) { //checking function is inside of target
+                List<Function> relatedParameterFunctions = new ArrayList<>(relatedParameter.getFunctions());
+                for (Function f : relatedParameterFunctions) {
+                    if (!(endPoint < f.getStartPoint() || startPoint > f.getEndPoint())) {
                         collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, startPoint, endPoint);
                     }
-                });
-            });
+                }
+            }
         }
     }
+
 }

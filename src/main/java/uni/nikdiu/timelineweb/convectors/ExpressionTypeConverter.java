@@ -10,19 +10,38 @@ public class ExpressionTypeConverter {
 
 
     public String classicToLatex(String classicExpression) {
-        System.out.println("Converting classic syntax to latex expression ");
-        System.out.println("Classic expression: " + classicExpression);
+        System.out.println();
 
+        System.out.println("Classic to Latex:");
+        System.out.println("classicExpression: " + classicExpression);
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
+
+        System.out.println("removed spaces: " + classicExpression);
+
 
         classicExpression = replaceDivision(classicExpression);
+        System.out.println("replaceDivision: " + classicExpression);
+
+        classicExpression = classicExpression.replaceAll("\\)\\)", "\\\\right\\)");
+        classicExpression = classicExpression.replaceAll("\\(\\(", "\\\\left\\(");
+        System.out.println("replace user brackets: " + classicExpression);
 
         classicExpression = replaceOperators(classicExpression);
+        System.out.println("replaceOperators " + classicExpression);
 
         classicExpression = replaceFunctions(classicExpression);
+        System.out.println("replaceFunctions " + classicExpression);
+
+        classicExpression = classicExpression.replaceAll("right}", "right\\)");
+        classicExpression = classicExpression.replaceAll("left\\{", "left\\(");
+        System.out.println("fixed user brackets " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
+        System.out.println("removed spaces: " + classicExpression);
+
         classicExpression = classicExpression.replaceAll("cdot", "cdot ");
+        System.out.println("fixed multiplier: " + classicExpression);
+
 
         System.out.println("Latex expression: " + classicExpression);
         return "\\[" + classicExpression + "\\]";
@@ -37,14 +56,14 @@ public class ExpressionTypeConverter {
         }
 
         // Найти позицию начала числителя
-        int startNumerator = findStartNumerator(classicExpression, divisionIndex);
+        int startNumerator = findStartNumerator(classicExpression, divisionIndex) + 1;
         // Найти позицию конца числителя
-        int endNumerator = divisionIndex - 1;
+        int endNumerator = divisionIndex - 2;
 
         // Найти позицию начала знаменателя
-        int startDenominator = divisionIndex + 1;
+        int startDenominator = divisionIndex + 2;
         // Найти позицию конца знаменателя
-        int endDenominator = findEndDenominator(classicExpression, divisionIndex);
+        int endDenominator = findEndDenominator(classicExpression, divisionIndex) - 1;
 
         // Получить числитель и знаменатель
         String numerator = classicExpression.substring(startNumerator, endNumerator + 1);
@@ -105,8 +124,6 @@ public class ExpressionTypeConverter {
         expression = expression.replaceAll("\\(", "{");
         expression = expression.replaceAll("\\)", "}");
 
-        expression = expression.replaceAll("\\}  \\}", " \\\\right\\)");
-        expression = expression.replaceAll("\\{  \\{", " \\\\left\\(");
         return expression;
     }
 
@@ -122,9 +139,10 @@ public class ExpressionTypeConverter {
     //From LaTeX to classic syntax
 
     public String latexToClassic(String latexExpression) {
-
-        System.out.println("Converting latex expression to classic syntax");
+        System.out.println();
+        System.out.println("Latex to classic:");
         System.out.println("Latex expression: " + latexExpression);
+
         // Remove LaTeX delimiters
         latexExpression = latexExpression.replaceAll("\\\\\\[", "");
         latexExpression = latexExpression.replaceAll("\\\\]", "");
@@ -159,6 +177,7 @@ public class ExpressionTypeConverter {
         }
         latexExpression = latexExpression.trim();
         System.out.println("Classic expression: " + latexExpression);
+
         return latexExpression;
     }
 
@@ -169,19 +188,15 @@ public class ExpressionTypeConverter {
             char currentChar = latexExpression.charAt(i);
 
             if (currentChar == '^') {
-                System.out.println("power sigh is found");
-                System.out.println("result: " + result);
+
                 result.append(currentChar);
-                System.out.println("result: " + result);
 
                 // Если следующий символ не '{'
                 if (i + 1 < length && latexExpression.charAt(i + 1) != '{') {
                     result.append('(');
-                    System.out.println("result: " + result);
                     // Пройти дальше до пробела или оператора
                     i++;
                     while (i < length && !isOperator(latexExpression.charAt(i))) {
-                        System.out.println("result: " + result);
                         result.append(latexExpression.charAt(i));
                         i++;
                     }

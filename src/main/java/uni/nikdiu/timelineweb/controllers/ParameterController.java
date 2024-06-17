@@ -37,7 +37,8 @@ public class ParameterController {
                 .stream()
                 .map(parameter -> parameterConvector.toDto(parameter))
                 .collect(Collectors.toList());
-        System.out.println("Found parameters: " + parameters);
+        System.out.println("Sent parameters:");
+        parameters.forEach(System.out::println);
         return parameters;
     }
 
@@ -77,13 +78,9 @@ public class ParameterController {
         ));
 
         Parameter parameter = parameterConvector.toEntity(parameterDto, relatedParameters);
-        parameter.setUnit(unitService.getUnitById(parameterDto.getUnit().getId()));
         parameter = parameterService.updateParameter(id, parameter);
 
-        System.out.println("Parameter updated: " + parameterService.getParameterById(parameter.getId()));
-        List<Parameter> all = parameterService.getAllParameters();
-        System.out.println("Updated all parameters");
-        all.forEach(System.out::println);
+        System.out.println("Parameter successfully updated: " );
         return ResponseEntity.ok(parameterConvector.toDto(parameter));
     }
 
@@ -106,7 +103,6 @@ public class ParameterController {
         ));
 
         Parameter parameter = parameterConvector.toEntity(parameterDto, relatedParameters);
-        parameter.setUnit(unitService.getUnitById(parameterDto.getUnit().getId()));
 
         parameter = parameterService.save(parameter);
 

@@ -17,24 +17,19 @@ import java.util.Map;
 public class ParameterConvector {
     FunctionConvector functionConvector;
     PointConvector pointConvector;
+    UnitConvector unitConvector;
 
     public ParameterDto toDto(Parameter parameter) {
         functionConvector = new FunctionConvector();
         pointConvector = new PointConvector();
+        unitConvector = new UnitConvector();
 
         List<FunctionDto> functions = parameter.getFunctions().stream()
                 .map(function -> functionConvector.toDto(function)).toList();
         List<PointDto> points = parameter.getPoints().stream()
                 .map(point -> pointConvector.toDto(point)).toList();
 
-        UnitDto unitDto = null;
-        if (parameter.getUnit() != null) {
-            unitDto = new UnitDto(
-                    parameter.getUnit().getId(),
-                    parameter.getUnit().getName(),
-                    parameter.getUnit().getAbbreviation()
-            );
-        }
+        UnitDto unitDto = unitConvector.toDto(parameter.getUnit());
         return new ParameterDto(
                 parameter.getId(),
                 parameter.getName(),
@@ -47,14 +42,8 @@ public class ParameterConvector {
 
     public Parameter toEntity(ParameterDto parameterDto, Map<FunctionDto, List<Parameter>> relatedParameters) {
 
-        Unit unit = null;
-        if (parameterDto.getUnit() != null) {
-            unit = new Unit(
-                    parameterDto.getUnit().getId(),
-                    parameterDto.getUnit().getName(),
-                    parameterDto.getUnit().getAbbreviation()
-            );
-        }
+        Unit unit = unitConvector.toEntity(parameterDto.getUnit());
+
 
         Parameter parameter = new Parameter(
                 parameterDto.getId(),
@@ -67,6 +56,7 @@ public class ParameterConvector {
         List<Function> functions = parameterDto.getFunctions().stream()
                 .map(f -> functionConvector.toEntity(f, parameter, relatedParameters.get(f))).toList();
         parameter.setFunctions(functions);
+        parameter.setUnit(unit);
         return parameter;
     }
 

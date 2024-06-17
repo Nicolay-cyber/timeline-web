@@ -145,7 +145,7 @@ VALUES
 
 -- Insert data into the function_parameters table
 INSERT INTO function_parameters (function_id, parameter_id)
-VALUES (1, 1),
+VALUES //(1, 1),
        (2, 1),
        (2, 2),
        (3, 2),

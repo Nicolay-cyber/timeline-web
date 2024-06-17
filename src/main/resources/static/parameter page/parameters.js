@@ -1,16 +1,41 @@
-angular.module('timeline', []).controller('indexController', function ($scope, $http, $sce, $timeout) {
+angular.module('timeline', ['ui.bootstrap']).controller('indexController', function ($scope, $http, $sce, $timeout) {
     // Set the context path based on the environment
     //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
     //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
+    // Function to load units of measurement
+    $scope.loadUnits = function () {
+        $http.get(contextPath + '/units').then(function (response) {
+            $scope.units = response.data;
+        });
+    };
+
+    $scope.currentParameter = null;
+    // Initialize new parameter
+    $scope.newParameter = {
+        name: '',
+        abbreviation: '',
+        description: '',
+        functions: [],
+        unit: null
+    };
+    // Function to handle selection of unit from typeahead
+    $scope.onSelectUnit = function ($item, $model, $label) {
+        $scope.newParameter.unit = $item;
+    };
+    // Function to format the input field
+    $scope.formatInput = function ($model) {
+        return $model ? $model.name + ' (' + $model.abbreviation + ')' : '';
+    };
     // Function to open the modal for adding a new parameter
     $scope.openNewParameterModal = function () {
         $scope.newParameter = {
             name: '',
             abbreviation: '',
             description: '',
-            functions: []
+            functions: [],
+            unit: null
         };
         $scope.newFunction = {
             startPoint: '',
@@ -24,6 +49,9 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
     };
 // Function to convert relatedParameterIds string to array of Long
     $scope.processRelatedParameterIds = function (idsString) {
+        if (typeof idsString !== 'string' || idsString.trim() === '') {
+            return [];
+        }
         return idsString.split(',').map(id => parseInt(id.trim()));
     };
     // Function to add a new function field
@@ -68,42 +96,56 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         $http.get(contextPath + '/parameters').then(function (response) {
             $scope.ParametersList = response.data;
             if ($scope.ParametersList.length > 0) {
-                // Automatically load data for the first parameter
-                $scope.loadGraphData($scope.ParametersList[0]);
+                if ($scope.currentParameter == null) {
+                    $scope.loadGraphData($scope.ParametersList[0]);
+                } else {
+                    $scope.loadGraphData($scope.currentParameter);
+                }
             }
         });
     };
 
     // Function to add the new parameter or edit the existing
     $scope.addParameter = function () {
+        if (!$scope.newParameter.name || !$scope.newParameter.abbreviation || !$scope.newParameter.unit) {
+            $('#errorModal').modal('show');
+            return;
+        }
         if ($scope.newParameter.id) {
             // Update existing parameter
             $http.put(contextPath + '/parameters/' + $scope.newParameter.id, $scope.newParameter).then(function (response) {
                 console.log('Parameter updated successfully');
                 $scope.loadParameters(); // Reload parameters list
+                $scope.currentParameter = angular.copy($scope.newParameter);
                 $('#addParameterModal').modal('hide');
+                $timeout(function () {
+                    MathJax.typeset();
+                }, 0);
             });
         } else {
             // Add new parameter
             $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
                 console.log('New parameter added successfully');
                 $scope.loadParameters(); // Reload parameters list
+                $scope.currentParameter = angular.copy($scope.newParameter);
                 $('#addParameterModal').modal('hide');
+                $timeout(function () {
+                    MathJax.typeset();
+                }, 0);
             });
+
         }
+
     };
     $scope.editParameter = function (parameterId) {
-        // Fetch the parameter details from API or use existing data
-        // Assuming you have a way to fetch parameter details by ID
-
-        $scope.newParameter = $scope.currentParameter // Assuming response.data contains parameter details
-
         $scope.isEditing = true; // Set editing flag
+        $scope.newParameter = angular.copy($scope.currentParameter);
         $('#addParameterModal').modal('show');
         $timeout(function () {
             MathJax.typeset();
         }, 0);
     };
+
 
 
     $scope.confirmDeleteParameter = function (parameterId) {
@@ -129,6 +171,7 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         if (confirm('Are you sure you want to delete this parameter?')) {
             $http.delete(contextPath + '/parameters/' + $scope.parameterToDelete).then(function () {
                 console.log('parameter deleted successfully');
+                $scope.currentParameter = null;
                 $scope.loadParameters();
                 $('#confirmDeleteModal').modal('hide');
             });
@@ -144,8 +187,9 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
             labels: [],
             datasets: [{
                 data: [], // Remove the 'label' field
-                backgroundColor: "rgba(153,205,1,0.6)",
-            }],
+                backgroundColor: 'rgba(85, 85, 85, 0.2)', // Темно серый цвет с прозрачностью 0.2
+                borderColor: 'rgba(85, 85, 85, 1)', // Цвет линии графика
+                    }],
         },
         options: {
             legend: {
@@ -168,15 +212,10 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         }
     });
 
-    // Variable to store the ID of the currently displayed parameter
-    $scope.currentParameterId = null;
-
     // Function to load graph data for a parameter
     $scope.loadGraphData = function (parameter) {
-        $scope.currentParameter = parameter;
-
         // Check if the new parameter is different from the current one
-        if (parameter.id !== $scope.currentParameterId) {
+        if ($scope.currentParameter == null || parameter.id !== $scope.currentParameter.id) {
             $http.get(contextPath + '/graph/' + parameter.id).then(function (response) {
 
                 // Update the chart, parameter title, and description
@@ -187,7 +226,7 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
                 }, 0);
 
                 // Update the ID of the current parameter
-                $scope.currentParameterId = parameter.id;
+                $scope.currentParameter = angular.copy(parameter);
             });
         }
     };
@@ -222,4 +261,6 @@ angular.module('timeline', []).controller('indexController', function ($scope, $
         }
     });
     $scope.loadParameters();
+    $scope.loadUnits();
+
 });

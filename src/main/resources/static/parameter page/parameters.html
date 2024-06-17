@@ -8,6 +8,9 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -21,6 +24,8 @@
 
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 
+    <!--для выпадающего окна-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.6/ui-bootstrap-tpls.min.js"></script>
 
     <script src="parameters.js"></script>
     <link rel="stylesheet" href="../mathquill.css"/>
@@ -59,6 +64,52 @@
             top: 0; /* Начинается на высоте панели меню */
             z-index: 999;
         }
+
+        .btn-primary {
+            background-color: #555 !important;
+            border-color: #555 !important;
+            color: #fff; /* Цвет текста кнопки */
+        }
+
+        .btn-danger {
+            background-color: #333 !important;
+            border-color: #333 !important;
+            color: #fff; /* Цвет текста кнопки */
+        }
+
+        .parameter-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .parameter-header {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-bottom: 1px solid #ddd;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .btn-danger:hover,
+        .btn-primary:hover {
+            background-color: #777 !important; /* Светлее на 1 уровень */
+            border-color: #777 !important;
+        }
+
+        .btn-link i {
+            color: #555 !important; /* Темно серый цвет */
+            font-size: 1.2rem; /* Размер иконки (опционально) */
+        }
+
+        .btn-link:hover i {
+            color: #777 !important; /* Светлее на 1 уровень при наведении */
+        }
+
+
         .modal-body {
             max-height: 60vh; /* Вы можете отрегулировать высоту по необходимости */
             overflow-y: auto;
@@ -69,6 +120,7 @@
             word-wrap: break-word;
             white-space: nowrap; /* Предотвращает перенос формулы на следующую строку */
         }
+
         .math-container {
             overflow-x: auto;
             word-wrap: break-word;
@@ -139,33 +191,45 @@
             </div>
             <div id="parameterDetails">
                 <div class="parameter-details">
-                    <h4>{{ currentParameter.name }} ({{ currentParameter.abbreviation }}), {{ currentParameter.unit.abbreviation }}</h4>
-                    <button class="btn btn-warning btn-sm" ng-click="editParameter(currentParameterId)">Edit</button>
-                    <button class="btn btn-danger btn-sm" ng-click="confirmDeleteParameter(currentParameterId)">Delete</button>
-                </div>
-                <p>{{ currentParameter.description }}</p>
-                <h4>Points</h4>
-                <div id="pointsList" class="d-flex flex-wrap">
-                    <div class="point-item mr-2" ng-repeat="point in currentParameter.points">
-                        ({{ point.x }}, {{ point.y }})
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4>{{ currentParameter.name }} ({{ currentParameter.abbreviation }}), {{
+                            currentParameter.unit.abbreviation }}</h4>
+                        <div>
+                            <button class="btn btn-link" ng-click="editParameter(currentParameter.id)" title="Edit">
+                                <i class="fas fa-pen"></i>
+
+                            </button>
+                            <button class="btn btn-link" ng-click="confirmDeleteParameter(currentParameter.id)"
+                                    title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
-                    <p ng-if="!currentParameter.points || currentParameter.points.length === 0">No data</p>
+                    <p>{{ currentParameter.description }}</p>
+                    <h4>Points</h4>
+                    <div id="pointsList" class="d-flex flex-wrap">
+                        <div class="point-item mr-2" ng-repeat="point in currentParameter.points">
+                            ({{ point.x }}, {{ point.y }})
+                        </div>
+                        <p ng-if="!currentParameter.points || currentParameter.points.length === 0">No data</p>
+                    </div>
+
+                    <h4>Functions</h4>
+                    <ul id="functionListHTML" class="list-group">
+                        <li class="list-group-item" ng-repeat="func in currentParameter.functions">
+                            Interval: {{func.startPoint}} - {{func.endPoint}}<br>
+                            <span ng-bind-html="renderMath(func.expression)"></span>
+                        </li>
+                        <li class="list-group-item" ng-if="!currentParameter.functions.length">No functions added yet
+                        </li>
+                    </ul>
                 </div>
-
-
-                <h4>Functions</h4>
-                <ul id="functionListHTML" class="list-group">
-                    <li class="list-group-item" ng-repeat="func in currentParameter.functions">
-                        Interval: {{func.startPoint}} - {{func.endPoint}}<br>
-                        <span ng-bind-html="renderMath(func.expression)"></span>
-                    </li>
-                    <li class="list-group-item" ng-if="!currentParameter.functions.length">No functions added yet</li>
-                </ul>
             </div>
         </div>
     </div>
     <!-- Modal for confirming parameter deletion -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="confirmDeleteModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -199,7 +263,8 @@
     </div>
 
     <!-- Modal for adding and editing new parameter -->
-    <div class="modal fade" id="addParameterModal" tabindex="-1" role="dialog" aria-labelledby="addParameterModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addParameterModal" tabindex="-1" role="dialog" aria-labelledby="addParameterModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -212,57 +277,122 @@
                 <div class="modal-body">
                     <form>
                         <input type="hidden" ng-model="newParameter.id">
-                        <div class="form-group">
-                            <label for="parameterName">Название параметра</label>
-                            <input type="text" class="form-control" id="parameterName" ng-model="newParameter.name">
+                        <div class="form-group parameter-container">
+
+                            <div class="parameter-header">
+                                <label for="parameterName">Название параметра</label>
+                            </div>
+                            <input type="text" class="form-control" id="parameterName" ng-model="newParameter.name"
+                                   required>
                         </div>
-                        <div class="form-group">
-                            <label for="parameterAbbreviation">Аббревиатура параметра</label>
-                            <input type="text" class="form-control" id="parameterAbbreviation" ng-model="newParameter.abbreviation">
+                        <div class="form-group parameter-container">
+                            <div class="parameter-header">
+                                <label for="parameterAbbreviation">Аббревиатура параметра</label>
+                            </div>
+                            <input type="text" class="form-control" id="parameterAbbreviation"
+                                   ng-model="newParameter.abbreviation" required>
                         </div>
-                        <div class="form-group">
-                            <label for="newParameterDescription">Описание параметра</label>
-                            <textarea class="form-control" id="newParameterDescription" rows="3" ng-model="newParameter.description"></textarea>
+                        <div class="form-group parameter-container">
+                            <div class="parameter-header">
+                                <label for="newParameterDescription">Единица измерения</label>
+                            </div>
+                            <textarea class="form-control" id="newParameterDescription" rows="3"
+                                      ng-model="newParameter.description"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="newParameterUnitId">ID единицы измерения</label>
-                            <input type="text" class="form-control" id="newParameterUnitId" ng-model="newParameter.unit.id">
-                        </div>
-                        <!-- Поля функций -->
-                        <div class="form-group">
-                            <label for="startPoint">Начальная точка</label>
-                            <input type="text" class="form-control" id="startPoint" ng-model="newFunction.startPoint">
-                        </div>
-                        <div class="form-group">
-                            <label for="endPoint">Конечная точка</label>
-                            <input type="text" class="form-control" id="endPoint" ng-model="newFunction.endPoint">
-                        </div>
-                        <div class="form-group">
-                            <label for="newFormulaField">Функция</label>
-                            <p><span id="newFormulaField" ng-model="newFunction.expression">x=</span></p>
-                        </div>
-                        <div class="form-group">
-                            <label for="newFormulaRelatedParameterField">Связанные ID параметров</label>
-                            <input type="text" class="form-control" id="newFormulaRelatedParameterField" ng-model="newFunction.relatedParameterIds">
+                        <div class="form-group parameter-container">
+                            <div class="parameter-header">
+                                <label for="newParameterUnit">Единица измерения</label>
+                            </div>
+                            <input type="text" class="form-control" id="newParameterUnit"
+                                   ng-model="newParameter.unit"
+                                   placeholder="Начните вводить название единицы измерения"
+                                   uib-typeahead="unit as unit.name + ' (' + unit.abbreviation + ')' for unit in units | filter:$viewValue | limitTo:8"
+                                   typeahead-on-select="onSelectUnit($item, $model, $label)"
+                                   typeahead-editable="false"
+                                   typeahead-input-formatter="formatInput($model)">
                         </div>
 
-                        <button id="addFunctionButton" class="btn btn-primary" type="button" ng-click="addFunction()">Добавить функцию</button>
 
                         <!-- Отображение списка функций -->
-                        <ul class="list-group mt-3">
+                        <ul class="list-group mt-3 parameter-container">
+                            <div class="parameter-header">
+                                <label for="newParameterUnit">Функции параметра</label>
+                            </div>
                             <li class="list-group-item" ng-repeat="func in newParameter.functions">
                                 Интервал: {{func.startPoint}} - {{func.endPoint}}<br>
                                 <span ng-bind-html="renderMath(func.expression)"></span>
-                                <button type="button" class="btn btn-warning btn-sm float-right ml-2" ng-click="editFunction($index)">Редактировать</button>
-                                <button type="button" class="btn btn-danger btn-sm float-right" ng-click="deleteFunction($index)">Удалить</button>
+                                <button class="btn btn-link" title="Edit"
+                                        ng-click="editFunction($index)"><i class="fas fa-pen"></i>
+                                </button>
+                                <button class="btn btn-link" title="Delete"
+                                        ng-click="deleteFunction($index)"><i class="fas fa-trash"></i>
+                                </button>
                             </li>
                         </ul>
+
+                        <!-- Поля функций -->
+                        <div class="parameter-container">
+                            <div class="parameter-header">
+                                <label>Создание новой функции</label>
+                            </div>
+                            <div class="form-group row">
+                                <label for="startPoint" class="col-sm-4 col-form-label">Начальная точка</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="startPoint" ng-model="newFunction.startPoint">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="endPoint" class="col-sm-4 col-form-label">Конечная точка</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="endPoint" ng-model="newFunction.endPoint">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="newFormulaField">Функция</label>
+                                <p><span id="newFormulaField" ng-model="newFunction.expression">Expression</span></p>
+                            </div>
+                            <div class="form-group">
+                                <label for="newFormulaRelatedParameterField">Связанные ID параметров</label>
+                                <input type="text" class="form-control" id="newFormulaRelatedParameterField"
+                                       ng-model="newFunction.relatedParameterIds">
+                            </div>
+
+                            <button id="addFunctionButton" class="btn btn-primary" type="button"
+                                    ng-click="addFunction()">
+                                Добавить функцию
+                            </button>
+                        </div>
+
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="!isEditing">Добавить</button>
-                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Сохранить изменения</button>
+                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="!isEditing">
+                        Добавить
+                    </button>
+                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Сохранить
+                        изменения
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Ошибка</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Пожалуйста, заполните обязательные поля: Название, Аббревиатура, и Единица измерения.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                 </div>
             </div>
         </div>

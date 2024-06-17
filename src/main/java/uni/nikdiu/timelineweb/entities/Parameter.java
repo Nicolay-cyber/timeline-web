@@ -33,17 +33,17 @@ public class Parameter {
     private Unit unit;
 
     @OneToMany(mappedBy = "parentParameter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Function> functions= new ArrayList<>();
+    private List<Function> functions;
 
     @OneToMany(mappedBy = "parentParameter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Point> points= new ArrayList<>();
+    private List<Point> points;
     @ManyToMany
     @JoinTable(
             name = "function_parameters",
             joinColumns = @JoinColumn(name = "parameter_id"),
             inverseJoinColumns = @JoinColumn(name = "function_id")
     )
-    private List<Function> relatedFunctions= new ArrayList<>();
+    private List<Function> relatedFunctions;
 
     public Parameter(Long id, String name, String description, String abbreviation) {
         this.id = id;
