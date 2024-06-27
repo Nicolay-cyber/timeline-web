@@ -165,7 +165,7 @@
             <table class="table table-hover" cellpadding="0" cellspacing="0">
                 <thead>
                 <tr>
-                    <th scope="col">Id</th>
+                    <th scope="col">Tag</th>
                     <th scope="col">Name</th>
                     <th scope="col">Unit</th>
                     <th scope="col">Description</th>
@@ -358,15 +358,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="newFormulaField">Function</label>
-                                <p><span id="newFormulaField" ng-model="newFunction.tagParamExpression">Expression</span></p>
+                                <label for="newFormulaField">Expression</label>
+                                <p><span id="newFormulaField" ng-model="newFunction.tagParamExpression">Type-here</span></p>
                             </div>
-                            <div class="form-group">
-                                <label for="newFormulaRelatedParameterField">Related Parameter IDs</label>
-                                <input type="text" class="form-control" id="newFormulaRelatedParameterField"
-                                       ng-model="newFunction.relatedParameterIds">
-                            </div>
-
                             <button id="addFunctionButton" class="btn btn-primary" type="button"
                                     ng-click="addFunction()">
                                 Add function

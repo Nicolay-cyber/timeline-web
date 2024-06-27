@@ -50,6 +50,12 @@ public class MathNotationConvector {
         Stack<String> operatorStack = new Stack<>();
 
         for (String token : infixExpression) {
+            if(token.equals("\\rb")){
+                token = ")";
+            }
+            if(token.equals("\\lb")){
+                token = "(";
+            }
             if (isOperand(token)) { // 1. If the input character is an operand
                 result.add(token);  // put it to the result
             } else if (isOperator(token)) {// 2. If the input character is an operator

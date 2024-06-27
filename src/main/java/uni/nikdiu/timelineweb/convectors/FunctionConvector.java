@@ -43,7 +43,7 @@ public class FunctionConvector {
     }
 
     public Function toEntity(FunctionDto functionDto, Parameter parentParameter, List<Parameter> relatedParameters) {
-        String stringExpression = latexConvector.latexToClassic(functionDto.getExpression());
+        String stringExpression = latexConvector.latexToClassic(functionDto.getTagParamExpression());
         List<String> expressions = Arrays.asList(stringExpression.split(" "));
         return new Function(
                 functionDto.getId(),

@@ -143,7 +143,7 @@ VALUES
      '-1 * ( 10 ) ^ ( -20 ) * ( @testA ) ^ ( 6 )'),
     (4, 0, 40000, '( 28.97 * 8.314 * @serfTemp ) / ( 4.2 * ( 10 ) ^ ( 15 ) )'),
     (3, 20000, 47100,
-     '-1 * ( 10 ) ^ ( -20 ) * ( @serfTemp ) ^ ( 6 )');
+     '-1 * \lb \lb 3 - 2 \rb * 10 \rb ^ ( -20 ) * ( @serfTemp ) ^ ( 6 )');
 
 -- Insert data into the function_parameters table
 INSERT INTO function_parameters (function_id, parameter_id)

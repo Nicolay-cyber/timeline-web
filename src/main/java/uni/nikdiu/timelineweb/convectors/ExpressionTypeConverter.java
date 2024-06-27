@@ -10,27 +10,32 @@ public class ExpressionTypeConverter {
 
 
     public String classicToLatex(String classicExpression) {
-
+        System.out.println("classicToLatex");
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
-
+        System.out.println("Удаление пробелов " + classicExpression);
 
 
         classicExpression = replaceDivision(classicExpression);
+        System.out.println("replaceDivision " + classicExpression);
 
-        classicExpression = classicExpression.replaceAll("\\)\\)", "\\\\right\\)");
-        classicExpression = classicExpression.replaceAll("\\(\\(", "\\\\left\\(");
-
+        classicExpression = classicExpression.replaceAll("\\\\rb", "\\\\right\\)");
+        classicExpression = classicExpression.replaceAll("\\\\lb", "\\\\left\\(");
+        System.out.println("brackets: " + classicExpression);
         classicExpression = replaceOperators(classicExpression);
-
+        System.out.println("replaceOperators " + classicExpression);
         classicExpression = replaceFunctions(classicExpression);
+        System.out.println("replaceFunctions " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("right}", "right\\)");
         classicExpression = classicExpression.replaceAll("left\\{", "left\\(");
+        System.out.println("fix brackets " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
+        System.out.println("Удаление пробелов " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("cdot", "cdot ");
 
+        System.out.println("fix cdot " + classicExpression);
 
         return "\\[" + classicExpression + "\\]";
     }
@@ -44,7 +49,7 @@ public class ExpressionTypeConverter {
         }
 
         // Найти позицию начала числителя
-        int startNumerator = findStartNumerator(classicExpression, divisionIndex) + 1;
+        int startNumerator = findStartNumerator(classicExpression, divisionIndex);
         // Найти позицию конца числителя
         int endNumerator = divisionIndex - 2;
 
@@ -56,7 +61,8 @@ public class ExpressionTypeConverter {
         // Получить числитель и знаменатель
         String numerator = classicExpression.substring(startNumerator, endNumerator + 1);
         String denominator = classicExpression.substring(startDenominator, endDenominator + 1);
-
+        System.out.println("числитель " + numerator);
+        System.out.println("знаменатель " + denominator);
         // Сформировать строку с отформатированным знаком деления
         String formattedDivision = " \\frac{" + numerator.trim() + "}{" + denominator.trim() + "} ";
 
@@ -70,12 +76,15 @@ public class ExpressionTypeConverter {
     private int findStartNumerator(String classicExpression, int divisionIndex) {
         int bracketCount = 0;
         for (int i = divisionIndex - 1; i >= 0; i--) {
+            System.out.println(classicExpression.charAt(i));
+            System.out.println("bracketCount " + bracketCount);
             char currentChar = classicExpression.charAt(i);
             if (currentChar == ')') {
                 bracketCount++;
             } else if (currentChar == '(') {
                 bracketCount--;
-            } else if (bracketCount == 0 && (currentChar == '+' || currentChar == '-' || currentChar == '*' || currentChar == '/' || currentChar == '|')) {
+            }
+            if (bracketCount == 0) {
                 // Найдено начало числителя, если встречается оператор и не внутри скобок
                 return i + 1;
             }
@@ -132,8 +141,8 @@ public class ExpressionTypeConverter {
         latexExpression = latexExpression.replaceAll("\\\\\\[", "");
         latexExpression = latexExpression.replaceAll("\\\\]", "");
 
-        latexExpression = latexExpression.replaceAll("\\\\left\\(", "((");
-        latexExpression = latexExpression.replaceAll("\\\\right\\)", "))");
+        latexExpression = latexExpression.replaceAll("\\\\left\\(", " \\\\lb ");
+        latexExpression = latexExpression.replaceAll("\\\\right\\)", " \\\\rb ");
 
         latexExpression = handlePowerSighs(latexExpression);
         latexExpression = latexExpression.replaceAll("\\{", "(");
@@ -156,6 +165,14 @@ public class ExpressionTypeConverter {
         latexExpression = latexExpression.replaceAll("\\)", " ) ");
 
         latexExpression = handleNegativeSigns(latexExpression);
+
+        while (latexExpression.contains("  ")) {
+            latexExpression = latexExpression.replaceAll(" {2}", " ");
+        }
+        latexExpression = latexExpression.trim();
+
+        latexExpression = latexExpression.replaceAll("\\\\ lb", " \\\\lb ");
+        latexExpression = latexExpression.replaceAll("\\\\ rb", " \\\\rb ");
 
         while (latexExpression.contains("  ")) {
             latexExpression = latexExpression.replaceAll(" {2}", " ");
