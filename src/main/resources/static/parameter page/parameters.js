@@ -41,6 +41,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             startPoint: '',
             endPoint: '',
             expression: '',
+            tagParamExpression: '',
             relatedParameterIds: []
         };
 
@@ -58,7 +59,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
     $scope.addFunction = function () {
 
         let newFunctionCopy = angular.copy($scope.newFunction);
-        newFunctionCopy.expression = '\\[' + answerMathField.latex() + '\\]';
+        newFunctionCopy.tagParamExpression = '\\[' + answerMathField.latex() + '\\]';
         newFunctionCopy.relatedParameterIds = $scope.processRelatedParameterIds($scope.newFunction.relatedParameterIds);
         $scope.newParameter.functions.push(newFunctionCopy);
 
@@ -67,6 +68,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             startPoint: '',
             endPoint: '',
             expression: '',
+            tagParamExpression: '',
             relatedParameterIds: ''
         };
 
@@ -78,7 +80,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
         let func = $scope.newParameter.functions[index];
         $scope.newFunction = angular.copy(func);
         $scope.newFunction.relatedParameterIds = func.relatedParameterIds.join(', ');
-        answerMathField.latex(func.expression.replace('\\[', '').replace('\\]', ''));
+        answerMathField.latex(func.tagParamExpression.replace('\\[', '').replace('\\]', ''));
         $scope.newParameter.functions.splice(index, 1);
         $scope.$applyAsync(function () {
             MathJax.typesetPromise();
@@ -256,7 +258,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
         handlers: {
             edit: function () {
                 var enteredMath = answerMathField.latex(); // Get entered math in LaTeX format
-                $scope.newFunction.expression = enteredMath;
+                $scope.newFunction.tagParamExpression = enteredMath;
             }
         }
     });

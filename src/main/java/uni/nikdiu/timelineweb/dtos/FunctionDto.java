@@ -17,5 +17,6 @@ public class FunctionDto {
     private Long parentParameterId;
     private String parentParameterName;
     private String expression;
+    private String tagParamExpression;
     private List<Long> relatedParameterIds = new ArrayList<>();
 }

@@ -8,7 +8,6 @@ import uni.nikdiu.timelineweb.entities.Parameter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @NoArgsConstructor
@@ -17,17 +16,33 @@ public class FunctionConvector {
 
     public FunctionDto toDto(Function function) {
         List<Long> relatedParameters = function.getRelatedParameters().stream().map(f -> f.getId()).toList();
+        String tagExpression = latexConvector.classicToLatex(function.getStringExpression());
+        String abbrExpression = replaceTagsWithAbbreviation(tagExpression, function.getRelatedParameters());
+
         return new FunctionDto(
                 function.getId(),
                 function.getStartPoint(),
                 function.getEndPoint(),
                 function.getParentParameter().getId(),
                 function.getParentParameter().getName(),
-                latexConvector.classicToLatex(function.getStringExpression()),
+                abbrExpression,
+                tagExpression,
                 relatedParameters);
     }
 
-    public Function toEntity(FunctionDto functionDto,Parameter parentParameter, List<Parameter> relatedParameters) {
+    private String replaceTagsWithAbbreviation(String tagExpression, List<Parameter> relatedParameters) {
+        for (Parameter param : relatedParameters) {
+            String tag = param.getTag();
+            String abbreviation = param.getAbbreviation();
+            if (tag != null && abbreviation != null) {
+                tagExpression = tagExpression.replace(tag, abbreviation);
+            }
+        }
+        tagExpression = tagExpression.replace("@time", "t");
+        return tagExpression;
+    }
+
+    public Function toEntity(FunctionDto functionDto, Parameter parentParameter, List<Parameter> relatedParameters) {
         String stringExpression = latexConvector.latexToClassic(functionDto.getExpression());
         List<String> expressions = Arrays.asList(stringExpression.split(" "));
         return new Function(
@@ -40,14 +55,5 @@ public class FunctionConvector {
                 expressions
         );
     }
-    public Function toEntity(FunctionDto functionDto) {
-        List<String> expressions = Arrays.asList(latexConvector.latexToClassic(functionDto.getExpression()).split(" "));
-        return new Function(
-                functionDto.getId(),
-                functionDto.getStartPoint(),
-                functionDto.getEndPoint(),
-                functionDto.getExpression(),
-                expressions
-        );
-    }
+
 }

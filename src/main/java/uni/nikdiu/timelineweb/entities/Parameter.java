@@ -22,6 +22,9 @@ public class Parameter {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "tag")
+    private String tag;
+
     @Column(name = "description")
     private String description;
 
@@ -45,9 +48,10 @@ public class Parameter {
     )
     private List<Function> relatedFunctions;
 
-    public Parameter(Long id, String name, String description, String abbreviation) {
+    public Parameter(Long id, String name, String tag, String description, String abbreviation) {
         this.id = id;
         this.name = name;
+        this.tag = tag;
         this.description = description;
         this.abbreviation = abbreviation;
         this.points = new ArrayList<>();

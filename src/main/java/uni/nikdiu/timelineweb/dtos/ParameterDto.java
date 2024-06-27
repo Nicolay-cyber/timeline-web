@@ -13,6 +13,7 @@ import java.util.List;
 public class ParameterDto {
     private Long id;
     private String name;
+    private String tag;
     private String description;
     private String abbreviation;
     private UnitDto unit;

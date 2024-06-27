@@ -81,7 +81,7 @@ public class GraphService {
             double slope = (endPoint.getY() - startPoint.getY()) / (endPoint.getX() - startPoint.getX());
             double intercept = startPoint.getY() - slope * startPoint.getX();
 
-            String stringExpression = slope + " * t + " + intercept;
+            String stringExpression = slope + " * @time + " + intercept;
             Function function = new Function(null,
                     endPoint.getX(),
                     startPoint.getX(),

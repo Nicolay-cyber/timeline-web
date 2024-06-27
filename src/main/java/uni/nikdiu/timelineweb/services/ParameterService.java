@@ -26,6 +26,10 @@ public class ParameterService {
         return parameterRepository.findById(id).orElseThrow(() -> new RuntimeException("Parameter not found"));
     }
 
+    public Parameter getParameterByTag(String tag) {
+        return parameterRepository.getParameterByTag(tag).orElseThrow(() -> new RuntimeException("Parameter " + tag + " not found"));
+    }
+
     public Parameter save(Parameter parameter) {
         return parameterRepository.save(parameter);
     }

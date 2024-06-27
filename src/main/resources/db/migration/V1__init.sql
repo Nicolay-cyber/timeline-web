@@ -56,17 +56,19 @@ CREATE TABLE IF NOT EXISTS parameters
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
+    tag          VARCHAR(255) NOT NULL UNIQUE,
     description  TEXT,
     abbreviation VARCHAR(255) NOT NULL,
     unit_id      BIGINT,
     FOREIGN KEY (unit_id) REFERENCES units (id)
 );
+CREATE INDEX idx_tag ON parameters (tag);
+
 CREATE TABLE IF NOT EXISTS models (
    id BIGINT AUTO_INCREMENT PRIMARY KEY,
    name VARCHAR(255) NOT NULL,
    description TEXT
 );
-
 CREATE TABLE IF NOT EXISTS parameter_model (
    parameter_id BIGINT,
    model_id BIGINT,
@@ -116,11 +118,11 @@ VALUES ('Kelvin', 'K');
 INSERT INTO units (name, abbreviation)
 VALUES ('Pascal', 'Pa');
 
-INSERT INTO parameters (name, description, abbreviation, unit_id)
-VALUES ('Temperature', 'Surface temperature in degrees Celsius on the Earth starting since Moon formation impact', 'T', 1),
-       ('Test parameter A', 'Test parameter depended on temperature and time', 'Ta', 1),
-       ('Test parameter B', 'Test parameter depended on temperature and parameter A', 'Tb', 1),
-       ('Surface pressure',
+INSERT INTO parameters (name, tag, description, abbreviation, unit_id)
+VALUES ('Temperature', '@serfTemp','Surface temperature in degrees Celsius on the Earth starting since Moon formation impact', 'T', 1),
+       ('Test parameter A','@testA', 'Test parameter depended on temperature and time', 'Ta', 1),
+       ('Test parameter B','@testB', 'Test parameter depended on temperature and parameter A', 'Tb', 1),
+       ('Surface pressure','@surfacePressure',
         'Surface pressure in Pa on the Earth starting since Moon formation impact and depending on surface temperature.' ||
         ' The ideal gas low is used here. Volume of the Earth atmosphere is taken as 4.2*10^15 m^3.' ||
         ' Amount of substance is 28.97 g/mole. R = 8.314 J/(mole*K).', 'P', 2);
@@ -134,14 +136,14 @@ VALUES
     //(3, 1, 33530, 47100, '-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * t ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * t ^ 3 - 0.4342 * t ^ 2 + 6772.5 * t - 4 * 10 ^ 07'),
     (2, 0, 47100,
         //'-1 * 10 ^ -20 * t ^ 6 + 3 * 10 ^ -15 * T ^ 5 - 3 * 10 ^ -10 * t ^ 4 + 1 * 10 ^ -05 * T ^ 3 - 0.4342 * t ^ 2 + 6772.5 * T - 4 * 10 ^ 07'),
-     '( t ) ^ ( 2 )'),
+     '( @time ) ^ ( 2 )'),
     (2, 50000, 100000,
-     '-1 * ( 10 ) ^ ( -20 ) * ( t ) ^ ( 6 ) + 3 * ( 10 ) ^ ( -15 ) * ( T ) ^ ( 5 ) - 3 * ( 10 ) ^ ( -10 ) * ( t ) ^ ( 4 ) + 1 * ( 10 ) ^ ( -5 ) * ( T ) ^ ( 3 ) - 0.4342 * ( t ) ^ ( 2 ) + 6772.5 * T - 4 * ( 10 ) ^ ( 7 )'),
+     '-1 * ( 10 ) ^ ( -20 ) * ( @time ) ^ ( 6 )'),
     (3, 0, 20000,
-     '-1 * ( 10 ) ^ ( -20 ) * ( Ta ) ^ ( 6 ) + 3 * ( 10 ) ^ ( -15 ) * ( Ta ) ^ ( 5 ) - 3 * ( 10 ) ^ ( -10 ) * ( Ta ) ^ ( 4 ) + 1 * ( 10 ) ^ ( -5 ) * ( T ) ^ ( 3 ) - 0.4342 * ( Ta ) ^ ( 2 ) + 6772.5 * T - 4 * ( 10 ) ^ ( 7 )'),
-    (4, 0, 40000, '( 28.97 * 8.314 * T ) / ( 4.2 * ( 10 ) ^ ( 15 ) )'),
+     '-1 * ( 10 ) ^ ( -20 ) * ( @testA ) ^ ( 6 )'),
+    (4, 0, 40000, '( 28.97 * 8.314 * @serfTemp ) / ( 4.2 * ( 10 ) ^ ( 15 ) )'),
     (3, 20000, 47100,
-     '-1 * ( 10 ) ^ ( -20 ) * ( T ) ^ ( 6 ) + 3 * ( 10 ) ^ ( -15 ) * ( T ) ^ ( 5 ) - 3 * ( 10 ) ^ ( -10 ) * ( T ) ^ ( 4 ) + 1 * ( 10 ) ^ ( -5 ) * ( T ) ^ ( 3 ) - 0.4342 * ( T ) ^ ( 2 ) + 6772.5 * T - 4 * ( 10 ) ^ ( 7 )');
+     '-1 * ( 10 ) ^ ( -20 ) * ( @serfTemp ) ^ ( 6 )');
 
 -- Insert data into the function_parameters table
 INSERT INTO function_parameters (function_id, parameter_id)

@@ -26,7 +26,7 @@ public class Calculator {
 
         for (String token : PostfixExpression) {
             if (!token.matches("-?\\d+(\\.\\d+)?") && !operators.contains(token)) { //It's not a number and not an operator
-                if (token.matches("t")) {
+                if (token.matches("@time")) {
                     token = String.valueOf(step);
                 } else { //It's parameter variable
                     token = replaceParameter(token, relatedParameters, relatedFunctions, step);
@@ -88,11 +88,11 @@ public class Calculator {
         return stack.pop();
     }
 
-    private String replaceParameter(String parameterAbbr, List<Parameter> relatedParameters, List<Function> relatedFunctions, Double step) {
+    private String replaceParameter(String parameterTag, List<Parameter> relatedParameters, List<Function> relatedFunctions, Double step) {
         Parameter relatedParameter = relatedParameters.stream()
-                .filter(p -> p.getAbbreviation().equals(parameterAbbr))
+                .filter(p -> p.getTag().equals(parameterTag))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Unable to find parameter with abbreviation: " + parameterAbbr));
+                .orElseThrow(() -> new NoSuchElementException("Unable to find parameter with tag: " + parameterTag));
 
         Function relatedFunction = relatedFunctions.stream()
                 .filter(f -> f.getParentParameter().getId().equals(

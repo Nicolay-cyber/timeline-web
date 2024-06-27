@@ -33,6 +33,7 @@ public class ParameterConvector {
         return new ParameterDto(
                 parameter.getId(),
                 parameter.getName(),
+                parameter.getTag(),
                 parameter.getDescription(),
                 parameter.getAbbreviation(),
                 unitDto,
@@ -41,6 +42,8 @@ public class ParameterConvector {
     }
 
     public Parameter toEntity(ParameterDto parameterDto, Map<FunctionDto, List<Parameter>> relatedParameters) {
+        unitConvector = new UnitConvector();
+        functionConvector = new FunctionConvector();
 
         Unit unit = unitConvector.toEntity(parameterDto.getUnit());
 
@@ -48,10 +51,10 @@ public class ParameterConvector {
         Parameter parameter = new Parameter(
                 parameterDto.getId(),
                 parameterDto.getName(),
+                parameterDto.getTag(),
                 parameterDto.getDescription(),
                 parameterDto.getAbbreviation());
 
-        functionConvector = new FunctionConvector();
 
         List<Function> functions = parameterDto.getFunctions().stream()
                 .map(f -> functionConvector.toEntity(f, parameter, relatedParameters.get(f))).toList();

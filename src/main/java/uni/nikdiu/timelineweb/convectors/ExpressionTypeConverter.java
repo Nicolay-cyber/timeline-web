@@ -10,40 +10,28 @@ public class ExpressionTypeConverter {
 
 
     public String classicToLatex(String classicExpression) {
-        System.out.println();
 
-        System.out.println("Classic to Latex:");
-        System.out.println("classicExpression: " + classicExpression);
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
 
-        System.out.println("removed spaces: " + classicExpression);
 
 
         classicExpression = replaceDivision(classicExpression);
-        System.out.println("replaceDivision: " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("\\)\\)", "\\\\right\\)");
         classicExpression = classicExpression.replaceAll("\\(\\(", "\\\\left\\(");
-        System.out.println("replace user brackets: " + classicExpression);
 
         classicExpression = replaceOperators(classicExpression);
-        System.out.println("replaceOperators " + classicExpression);
 
         classicExpression = replaceFunctions(classicExpression);
-        System.out.println("replaceFunctions " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("right}", "right\\)");
         classicExpression = classicExpression.replaceAll("left\\{", "left\\(");
-        System.out.println("fixed user brackets " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
-        System.out.println("removed spaces: " + classicExpression);
 
         classicExpression = classicExpression.replaceAll("cdot", "cdot ");
-        System.out.println("fixed multiplier: " + classicExpression);
 
 
-        System.out.println("Latex expression: " + classicExpression);
         return "\\[" + classicExpression + "\\]";
     }
 
@@ -139,9 +127,6 @@ public class ExpressionTypeConverter {
     //From LaTeX to classic syntax
 
     public String latexToClassic(String latexExpression) {
-        System.out.println();
-        System.out.println("Latex to classic:");
-        System.out.println("Latex expression: " + latexExpression);
 
         // Remove LaTeX delimiters
         latexExpression = latexExpression.replaceAll("\\\\\\[", "");
@@ -176,7 +161,6 @@ public class ExpressionTypeConverter {
             latexExpression = latexExpression.replaceAll(" {2}", " ");
         }
         latexExpression = latexExpression.trim();
-        System.out.println("Classic expression: " + latexExpression);
 
         return latexExpression;
     }

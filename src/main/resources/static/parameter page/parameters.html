@@ -43,7 +43,7 @@
             flex: 1;
             overflow-y: auto;
             scrollbar-width: none;
-            height: calc(100% - 56px); /* Учет высоты панели меню */
+            height: calc(100% - 56px); /* Consider height of menu panel */
         }
 
         .right-side::-webkit-scrollbar {
@@ -61,20 +61,20 @@
             background-color: #f7f7f7;
             overflow: hidden;
             position: sticky;
-            top: 0; /* Начинается на высоте панели меню */
+            top: 0; /* Starts at the height of the menu panel */
             z-index: 999;
         }
 
         .btn-primary {
             background-color: #555 !important;
             border-color: #555 !important;
-            color: #fff; /* Цвет текста кнопки */
+            color: #fff; /* Button text color */
         }
 
         .btn-danger {
             background-color: #333 !important;
             border-color: #333 !important;
-            color: #fff; /* Цвет текста кнопки */
+            color: #fff; /* Button text color */
         }
 
         .parameter-container {
@@ -96,46 +96,46 @@
 
         .btn-danger:hover,
         .btn-primary:hover {
-            background-color: #777 !important; /* Светлее на 1 уровень */
+            background-color: #777 !important; /* Lighter by one level */
             border-color: #777 !important;
         }
 
         .btn-link i {
-            color: #555 !important; /* Темно серый цвет */
-            font-size: 1.2rem; /* Размер иконки (опционально) */
+            color: #555 !important; /* Dark grey color */
+            font-size: 1.2rem; /* Icon size (optional) */
         }
 
         .btn-link:hover i {
-            color: #777 !important; /* Светлее на 1 уровень при наведении */
+            color: #777 !important; /* Lighter by one level on hover */
         }
 
 
         .modal-body {
-            max-height: 60vh; /* Вы можете отрегулировать высоту по необходимости */
+            max-height: 60vh; /* Adjust height as needed */
             overflow-y: auto;
         }
 
         .math-container {
             overflow-x: auto;
             word-wrap: break-word;
-            white-space: nowrap; /* Предотвращает перенос формулы на следующую строку */
+            white-space: nowrap; /* Prevents formula from wrapping to the next line */
         }
 
         .math-container {
             overflow-x: auto;
             word-wrap: break-word;
-            white-space: nowrap; /* Предотвращает перенос формулы на следующую строку */
-            max-width: 100%; /* Ограничение максимальной ширины, чтобы предотвратить переполнение */
+            white-space: nowrap; /* Prevents formula from wrapping to the next line */
+            max-width: 100%; /* Limits max width to prevent overflow */
         }
 
         .modal-body {
-            max-height: 60vh; /* Вы можете отрегулировать высоту по необходимости */
+            max-height: 60vh; /* Adjust height as needed */
             overflow-y: auto;
         }
 
-        /* Дополнительные стили для математических формул, чтобы они оставались в пределах контейнера */
+        /* Additional styles for math formulas to keep them within the container */
         .math-container > .mq-editable-field {
-            max-width: 100%; /* Ограничение максимальной ширины, чтобы предотвратить переполнение */
+            max-width: 100%; /* Limits max width to prevent overflow */
         }
 
     </style>
@@ -146,7 +146,7 @@
 
 <div class="container-fluid" ng-controller="indexController">
 
-    <!-- Добавленная панель -->
+    <!-- Added panel -->
     <div id="navbar-placeholder"></div>
 
     <script>
@@ -175,7 +175,7 @@
 
                 <tbody>
                 <tr ng-repeat="s in ParametersList" ng-click="loadGraphData(s)" data-id="{{s.id}}">
-                    <td>{{s.id}}</td>
+                    <td>{{s.tag}}</td>
                     <td>{{s.name}}</td>
                     <td>{{s.unit.abbreviation}}</td>
                     <td>{{s.description}}</td>
@@ -268,8 +268,8 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addParameterModalLabel" ng-if="!isEditing">Добавить новый параметр</h5>
-                    <h5 class="modal-title" id="addParameterModalLabel" ng-if="isEditing">Редактировать параметр</h5>
+                    <h5 class="modal-title" id="addParameterModalLabel" ng-if="!isEditing">Add new parameter</h5>
+                    <h5 class="modal-title" id="addParameterModalLabel" ng-if="isEditing">Edit parameter</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -280,32 +280,40 @@
                         <div class="form-group parameter-container">
 
                             <div class="parameter-header">
-                                <label for="parameterName">Название параметра</label>
+                                <label for="parameterName">Parameter name</label>
                             </div>
                             <input type="text" class="form-control" id="parameterName" ng-model="newParameter.name"
                                    required>
                         </div>
                         <div class="form-group parameter-container">
+
                             <div class="parameter-header">
-                                <label for="parameterAbbreviation">Аббревиатура параметра</label>
+                                <label for="parameterName">Parameter tag</label>
+                            </div>
+                            <input type="text" class="form-control" id="parameterTag" ng-model="newParameter.tag"
+                                   required>
+                        </div>
+                        <div class="form-group parameter-container">
+                            <div class="parameter-header">
+                                <label for="parameterAbbreviation">Parameter abbreviation</label>
                             </div>
                             <input type="text" class="form-control" id="parameterAbbreviation"
                                    ng-model="newParameter.abbreviation" required>
                         </div>
                         <div class="form-group parameter-container">
                             <div class="parameter-header">
-                                <label for="newParameterDescription">Единица измерения</label>
+                                <label for="newParameterDescription">Description</label>
                             </div>
                             <textarea class="form-control" id="newParameterDescription" rows="3"
                                       ng-model="newParameter.description"></textarea>
                         </div>
                         <div class="form-group parameter-container">
                             <div class="parameter-header">
-                                <label for="newParameterUnit">Единица измерения</label>
+                                <label for="newParameterUnit">Unit</label>
                             </div>
                             <input type="text" class="form-control" id="newParameterUnit"
                                    ng-model="newParameter.unit"
-                                   placeholder="Начните вводить название единицы измерения"
+                                   placeholder="Begin typing the unit of measurement name"
                                    uib-typeahead="unit as unit.name + ' (' + unit.abbreviation + ')' for unit in units | filter:$viewValue | limitTo:8"
                                    typeahead-on-select="onSelectUnit($item, $model, $label)"
                                    typeahead-editable="false"
@@ -313,14 +321,14 @@
                         </div>
 
 
-                        <!-- Отображение списка функций -->
+                        <!-- Displaying the list of functions -->
                         <ul class="list-group mt-3 parameter-container">
                             <div class="parameter-header">
-                                <label for="newParameterUnit">Функции параметра</label>
+                                <label for="newParameterUnit">Parameter functions</label>
                             </div>
                             <li class="list-group-item" ng-repeat="func in newParameter.functions">
                                 Интервал: {{func.startPoint}} - {{func.endPoint}}<br>
-                                <span ng-bind-html="renderMath(func.expression)"></span>
+                                <span ng-bind-html="renderMath(func.tagParamExpression)"></span>
                                 <button class="btn btn-link" title="Edit"
                                         ng-click="editFunction($index)"><i class="fas fa-pen"></i>
                                 </button>
@@ -330,48 +338,49 @@
                             </li>
                         </ul>
 
-                        <!-- Поля функций -->
+                        <!-- Function Fields -->
                         <div class="parameter-container">
                             <div class="parameter-header">
-                                <label>Создание новой функции</label>
+                                <label>Creating a new function</label>
                             </div>
                             <div class="form-group row">
-                                <label for="startPoint" class="col-sm-4 col-form-label">Начальная точка</label>
+                                <label for="startPoint" class="col-sm-4 col-form-label">Start point</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="startPoint" ng-model="newFunction.startPoint">
+                                    <input type="text" class="form-control" id="startPoint"
+                                           ng-model="newFunction.startPoint">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="endPoint" class="col-sm-4 col-form-label">Конечная точка</label>
+                                <label for="endPoint" class="col-sm-4 col-form-label">End point</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="endPoint" ng-model="newFunction.endPoint">
+                                    <input type="text" class="form-control" id="endPoint"
+                                           ng-model="newFunction.endPoint">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="newFormulaField">Функция</label>
-                                <p><span id="newFormulaField" ng-model="newFunction.expression">Expression</span></p>
+                                <label for="newFormulaField">Function</label>
+                                <p><span id="newFormulaField" ng-model="newFunction.tagParamExpression">Expression</span></p>
                             </div>
                             <div class="form-group">
-                                <label for="newFormulaRelatedParameterField">Связанные ID параметров</label>
+                                <label for="newFormulaRelatedParameterField">Related Parameter IDs</label>
                                 <input type="text" class="form-control" id="newFormulaRelatedParameterField"
                                        ng-model="newFunction.relatedParameterIds">
                             </div>
 
                             <button id="addFunctionButton" class="btn btn-primary" type="button"
                                     ng-click="addFunction()">
-                                Добавить функцию
+                                Add function
                             </button>
                         </div>
 
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="!isEditing">
-                        Добавить
+                        Add
                     </button>
-                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Сохранить
-                        изменения
+                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Save changes
                     </button>
                 </div>
             </div>
@@ -383,13 +392,13 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Ошибка</h5>
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Пожалуйста, заполните обязательные поля: Название, Аббревиатура, и Единица измерения.
+                    Please fill in the required fields: Name, Abbreviation, and Unit of Measurement.
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
