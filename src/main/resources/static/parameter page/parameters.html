@@ -35,7 +35,7 @@
     <style>
         .split-screen {
             display: flex;
-            height: 100vh;
+            height: calc(100vh - 70px);
         }
 
         .left-side,
@@ -43,7 +43,7 @@
             flex: 1;
             overflow-y: auto;
             scrollbar-width: none;
-            height: calc(100% - 56px); /* Consider height of menu panel */
+            height: calc(100vh - 80px); /* Consider height of menu panel */
         }
 
         .right-side::-webkit-scrollbar {
@@ -137,7 +137,6 @@
         .math-container > .mq-editable-field {
             max-width: 100%; /* Limits max width to prevent overflow */
         }
-
     </style>
 
 </head>
@@ -359,7 +358,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="newFormulaField">Expression</label>
-                                <p><span id="newFormulaField" ng-model="newFunction.tagParamExpression">Type-here</span></p>
+                                <p><span id="newFormulaField" ng-model="newFunction.tagParamExpression">Type-here</span>
+                                </p>
                             </div>
                             <button id="addFunctionButton" class="btn btn-primary" type="button"
                                     ng-click="addFunction()">
@@ -374,7 +374,8 @@
                     <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="!isEditing">
                         Add
                     </button>
-                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Save changes
+                    <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Save
+                        changes
                     </button>
                 </div>
             </div>
@@ -395,7 +396,7 @@
                     Please fill in the required fields: Name, Abbreviation, and Unit of Measurement.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

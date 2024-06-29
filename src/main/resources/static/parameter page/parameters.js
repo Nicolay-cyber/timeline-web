@@ -113,32 +113,34 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             $('#errorModal').modal('show');
             return;
         }
-        if ($scope.newParameter.id) {
-            // Update existing parameter
-            $http.put(contextPath + '/parameters/' + $scope.newParameter.id, $scope.newParameter).then(function (response) {
-                console.log('Parameter updated successfully');
-                $scope.loadParameters(); // Reload parameters list
-                $scope.currentParameter = angular.copy($scope.newParameter);
-                $('#addParameterModal').modal('hide');
+
+        const request = $scope.newParameter.id
+            ? $http.put(`${contextPath}/parameters/${$scope.newParameter.id}`, $scope.newParameter)
+            : $http.post(`${contextPath}/parameters`, $scope.newParameter);
+
+        request.then(function (responseParameter) {
+            console.log('Parameter saved successfully');
+            $scope.loadParameters();
+
+            $http.get(contextPath + '/graph/' + responseParameter.data.id).then(function (response) {
+
+                // Update the chart, parameter title, and description
+                updateChart(response.data.labels, response.data.points, responseParameter.data.name, responseParameter.data.unit.abbreviation);
+
                 $timeout(function () {
                     MathJax.typeset();
                 }, 0);
-            });
-        } else {
-            // Add new parameter
-            $http.post(contextPath + '/parameters', $scope.newParameter).then(function (response) {
-                console.log('New parameter added successfully');
-                $scope.loadParameters(); // Reload parameters list
-                $scope.currentParameter = angular.copy($scope.newParameter);
-                $('#addParameterModal').modal('hide');
-                $timeout(function () {
-                    MathJax.typeset();
-                }, 0);
-            });
 
-        }
+                });
 
+            $scope.currentParameter = responseParameter.data;
+            $('#addParameterModal').modal('hide');
+            $timeout(function () {
+                MathJax.typesetPromise();
+            });
+        });
     };
+
     $scope.editParameter = function (parameterId) {
         $scope.isEditing = true; // Set editing flag
         $scope.newParameter = angular.copy($scope.currentParameter);

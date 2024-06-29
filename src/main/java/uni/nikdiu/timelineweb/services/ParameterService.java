@@ -8,8 +8,10 @@ import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
 import uni.nikdiu.timelineweb.repositories.ParameterRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,24 +58,42 @@ public class ParameterService {
         parameterRepository.delete(parameter);
         System.out.println("Parameter deleted");
     }
-
-    public Parameter updateParameter(Long id, Parameter parameterDetails) {
-        System.out.println("Entity for updating:\n" + parameterDetails);
+@Transactional
+    public Parameter updateParameter(Long id, Parameter updatedParameter) {
+        System.out.println("Entity for updating:\n" + updatedParameter);
 
         Parameter parameter = getParameterById(id);
 
-        parameter.setName(parameterDetails.getName());
-        parameter.setAbbreviation(parameterDetails.getAbbreviation());
-        parameter.setDescription(parameterDetails.getDescription());
-        parameter.setUnit(parameterDetails.getUnit());
+        parameter.setName(updatedParameter.getName());
+        parameter.setAbbreviation(updatedParameter.getAbbreviation());
+        parameter.setDescription(updatedParameter.getDescription());
+        parameter.setUnit(updatedParameter.getUnit());
 
-        parameterDetails.getFunctions().forEach(function -> {
+        // Создаем изменяемую копию существующих функций
+        List<Function> existingFunctions = new ArrayList<>(parameter.getFunctions());
+        // Обновленные функции
+        List<Function> updatedFunctions = updatedParameter.getFunctions();
+
+        // Найти функции, которые удалены при обновлении
+        List<Function> functionsToRemove = existingFunctions.stream()
+                .filter(existingFunction -> updatedFunctions.stream().noneMatch(updatedFunction -> updatedFunction.getId().equals(existingFunction.getId())))
+                .collect(Collectors.toList());
+
+        // Удалить функции, которые больше не присутствуют
+        for (Function function : functionsToRemove) {
+            functionService.remove(function);
+        }
+
+        // Сохранить или обновить оставшиеся функции
+        updatedFunctions.forEach(function -> {
             if (function.getId() == null) {
                 functionService.save(function);
             } else {
                 functionService.update(function);
             }
         });
+
+        parameter.setFunctions(new ArrayList<>(updatedFunctions));
 
         return parameterRepository.save(parameter);
     }

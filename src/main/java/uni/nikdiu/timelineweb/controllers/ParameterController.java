@@ -71,9 +71,11 @@ public class ParameterController {
         ));
 
         Parameter parameter = parameterConvector.toEntity(parameterDto, relatedParameters);
+        System.out.println("intermediate: "+ parameter);
         parameter = parameterService.updateParameter(id, parameter);
 
         System.out.println("Parameter successfully updated: ");
+        System.out.println(parameter);
         return ResponseEntity.ok(parameterConvector.toDto(parameter));
     }
 
@@ -104,13 +106,7 @@ public class ParameterController {
         Map<FunctionDto, List<Parameter>> relatedParameters = parameterDto.getFunctions().stream().collect(Collectors.toMap(f ->
                         f,
                 f -> {
-                    if (f.getRelatedParameterIds() != null) {
-                        return f.getRelatedParameterIds().stream()
-                                .map(parameterService::getParameterById)
-                                .collect(Collectors.toList());
-                    } else {
-                        return new ArrayList<>();
-                    }
+                    return findAllRelatedParameters(f);
                 }
         ));
 

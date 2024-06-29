@@ -17,6 +17,10 @@ import java.util.Optional;
 public class FunctionService {
     private final FunctionRepository functionRepository;
 
+    public List<Function> getAllFunctions() {
+        return functionRepository.findAll();
+    }
+
     public List<Function> getAllFunctionsWithParameter(Parameter parameter) {
         List<Function> functions = functionRepository.getAllByRelatedParameters(parameter);
         // Remove functions that are associated with the same parameter
@@ -29,13 +33,23 @@ public class FunctionService {
     }
 
     public Function save(Function function) {
+        System.out.println("saved function: " + function);
         return functionRepository.save(function);
     }
 
     public void remove(Function function) {
-        System.out.println("Removed function: " + function);
+        System.out.println("Removing function: " + function);
         functionRepository.deleteById(function.getId());
+
+        // Проверка, была ли функция действительно удалена
+        Optional<Function> removedFunction = functionRepository.findById(function.getId());
+        if (removedFunction.isEmpty()) {
+            System.out.println("Function removed");
+        } else {
+            System.out.println("Function is not removed");
+        }
     }
+
 
     public Function update(Function function) {
         System.out.println("Updating function: " + function);
@@ -46,10 +60,7 @@ public class FunctionService {
         oldFunction.setStringExpression(function.getStringExpression());
         oldFunction.setRelatedParameters(function.getRelatedParameters());
 
-        System.out.println("Updated function " + oldFunction);
         return save(oldFunction);
-
-
     }
 
 }
