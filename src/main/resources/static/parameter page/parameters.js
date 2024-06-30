@@ -18,6 +18,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
         abbreviation: '',
         description: '',
         functions: [],
+        points: [],
         unit: null
     };
     // Function to handle selection of unit from typeahead
@@ -35,6 +36,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             abbreviation: '',
             description: '',
             functions: [],
+            points: [],
             unit: null
         };
         $scope.newFunction = {
@@ -43,6 +45,10 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             expression: '',
             tagParamExpression: '',
             relatedParameterIds: []
+        };
+        $scope.newPoint = {
+            x: '',
+            y: ''
         };
 
         $('#newParameterFunctionList').empty();
@@ -79,7 +85,6 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
     $scope.editFunction = function (index) {
         let func = $scope.newParameter.functions[index];
         $scope.newFunction = angular.copy(func);
-        $scope.newFunction.relatedParameterIds = func.relatedParameterIds.join(', ');
         answerMathField.latex(func.tagParamExpression.replace('\\[', '').replace('\\]', ''));
         $scope.newParameter.functions.splice(index, 1);
         $scope.$applyAsync(function () {
@@ -93,6 +98,29 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             MathJax.typesetPromise();
         });
     };
+
+    // Function to add a new point field
+    $scope.addPoint = function () {
+
+        let newPointCopy = angular.copy($scope.newPoint);
+        $scope.newParameter.points.push(newPointCopy);
+
+        $scope.newPoint = {
+            x: '',
+            y: ''
+        };
+    };
+    $scope.editPoint = function (index) {
+        let point = $scope.newParameter.points[index];
+        $scope.newPoint = angular.copy(point);
+        $scope.newParameter.points.splice(index, 1);
+    };
+
+    $scope.deletePoint = function (index) {
+        $scope.newParameter.points.splice(index, 1); // remove the point
+    };
+
+
 // Function to load parameters
     $scope.loadParameters = function () {
         $http.get(contextPath + '/parameters').then(function (response) {

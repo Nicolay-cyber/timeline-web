@@ -44,7 +44,7 @@ public class FunctionService {
         // Проверка, была ли функция действительно удалена
         Optional<Function> removedFunction = functionRepository.findById(function.getId());
         if (removedFunction.isEmpty()) {
-            System.out.println("Function removed");
+            System.out.println("Function is removed");
         } else {
             System.out.println("Function is not removed");
         }
