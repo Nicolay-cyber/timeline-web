@@ -10,8 +10,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModelDto {
+public class FullModelDto {
     private Long id;
     private String name;
     private String description;
+    private List<ParameterDto> parameters = new ArrayList<>();
+    private List<Double> XValues = new ArrayList<>();
+    private List<LineDto> YValues = new ArrayList<>();
 }

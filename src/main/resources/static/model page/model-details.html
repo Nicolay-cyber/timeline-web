@@ -14,7 +14,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
 
-    <script src="models.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js"></script>
+
+
+    <script src="model-details.js"></script>
     <link href="../styles.css" rel="stylesheet">
 
     <style>
@@ -47,7 +50,7 @@
             $("#navbar-placeholder").load("../navbar.html");
         });
     </script>
-
+    <canvas id="modelChart"></canvas>
     <h1>{{model.name}}</h1>
     <div>
         <p> {{model.description}}</p>
@@ -58,13 +61,20 @@
             </div>
             <p><strong>Unit:</strong> {{parameter.unit.name}} ({{parameter.unit.abbreviation}})</p>
             <p>{{parameter.description}}</p>
-
+            <div ng-if="parameter.points.length">
+                <h5>Points:</h5>
+                <ul>
+                    <li ng-repeat="point in parameter.points">
+                        <p>({{point.x}}, {{point.y}})</p>
+                    </li>
+                </ul>
+            </div>
             <div ng-if="parameter.functions.length">
                 <h5>Functions:</h5>
                 <ul>
                     <li ng-repeat="func in parameter.functions">
                         <p><strong>Interval:</strong> {{func.startPoint}} - {{func.endPoint}}</p>
-                        <p> {{func.expression}}</p>
+                        <p>{{func.expression}}</p>
                     </li>
                 </ul>
             </div>

@@ -33,7 +33,7 @@ public class Calculator {
                 }
             }
             if (token == null) {
-                return null;
+                return 0.0;
             }
             switch (token) {
                 case "+":
