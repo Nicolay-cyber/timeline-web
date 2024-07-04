@@ -2,7 +2,9 @@ package uni.nikdiu.timelineweb.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import uni.nikdiu.timelineweb.dtos.*;
 import uni.nikdiu.timelineweb.entities.Function;
+import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
 import uni.nikdiu.timelineweb.entities.Point;
 import uni.nikdiu.timelineweb.models.Calculator;
@@ -12,11 +14,127 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GraphService {
     private final ParameterService parameterService;
+
+    public ModelGraphDto getModelGraph(Model model) {
+        ModelGraphDto modelGraph = new ModelGraphDto();
+        modelGraph.setXValues(getXValues(model));
+
+
+        Calculator calculator = new Calculator();
+        List<Function> relatedFunctions = new ArrayList<>();
+        List<Parameter> relatedParameters = new ArrayList<>();
+        model.getParameters().forEach(parameter -> {
+            if (!parameter.getPoints().isEmpty() && parameter.getPoints().size() > 1) {
+                addNewCreatedFunctionsFromParameterPoints(parameter);
+            }
+            List<Function> functionsCopy = new ArrayList<>(parameter.getFunctions());
+
+            functionsCopy.forEach(f -> {
+                collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
+            });
+
+
+        });
+
+        List<Double> XVal = List.of(100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0);
+        List<Double> YValues1 = List.of(860.0, 1140.0, 1060.0, 1060.0, 1070.0, 1110.0, 1330.0, 2210.0, 7830.0, 2478.0);
+        List<Double> YValues2 = List.of(1600.0, 1700.0, 1700.0, 1900.0, 2000.0, 2700.0, 4000.0, 5000.0, 6000.0, 7000.0);
+        List<Double> YValues3 = List.of(300.0, 700.0, 2000.0, 5000.0, 6000.0, 4000.0, 2000.0, 1000.0, 200.0, 100.0);
+
+        /*List<String> XValuesString = modelGraph.getXValues().stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());*/
+        
+        List<String> XValuesString = XVal.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+        List<LineDto> YValues = List.of(
+                new LineDto(
+                        YValues1,
+                        XValuesString,
+                        "Red"
+                ),
+                new LineDto(
+                        YValues2,
+                        XValuesString,
+                        "Blue"
+                ),
+                new LineDto(
+                        YValues3,
+                        XValuesString,
+                        "Yellow"
+                )
+
+        );
+        modelGraph.setYValues(YValues);
+        return modelGraph;
+    }
+
+    private List<Double> getXValues(Model model) {
+        double smallestStartPoint = model.getParameters().stream()
+                .flatMap(parameter -> parameter.getFunctions().stream()
+                        .map(Function::getStartPoint)
+                        .filter(startPoint -> !Double.isNaN(startPoint)))
+                .min(Double::compare)
+                .orElse(Double.NaN);
+
+        double smallestXPoint = model.getParameters().stream()
+                .flatMap(parameter -> parameter.getPoints().stream()
+                        .map(Point::getX)
+                        .filter(x -> !Double.isNaN(x)))
+                .min(Double::compare)
+                .orElse(Double.NaN);
+
+        double overallSmallestPoint = Double.isNaN(smallestStartPoint) ? smallestXPoint :
+                (Double.isNaN(smallestXPoint) ? smallestStartPoint :
+                        Math.min(smallestStartPoint, smallestXPoint));
+
+        double biggestEndPoint = model.getParameters().stream()
+                .flatMap(parameter -> parameter.getFunctions().stream()
+                        .map(Function::getEndPoint)
+                        .filter(endPoint -> !Double.isNaN(endPoint)))
+                .max(Double::compare)
+                .orElse(Double.NaN);
+
+        double biggestXPoint = model.getParameters().stream()
+                .flatMap(parameter -> parameter.getPoints().stream()
+                        .map(Point::getX)
+                        .filter(x -> !Double.isNaN(x)))
+                .max(Double::compare)
+                .orElse(Double.NaN);
+
+        double overallBiggestPoint = Double.isNaN(biggestEndPoint) ? biggestXPoint :
+                (Double.isNaN(biggestXPoint) ? biggestEndPoint :
+                        Math.max(biggestEndPoint, biggestXPoint));
+
+        System.out.println("overallSmallestPoint: " + overallSmallestPoint);
+        System.out.println("overallBiggestPoint: " + overallBiggestPoint);
+
+        List<Double> XValues = new ArrayList<>();
+        if (!Double.isNaN(overallSmallestPoint) && !Double.isNaN(overallBiggestPoint)) {
+            int pointAmount = 50;
+            Double step = (overallBiggestPoint - overallSmallestPoint) / pointAmount;
+            System.out.println("step: " + step);
+            double currentValue = smallestStartPoint;
+            for (int i = 0; i < pointAmount; i++) {
+                XValues.add(currentValue);
+                currentValue += step;
+            }
+            if (!XValues.contains(overallBiggestPoint)) {
+                XValues.add(overallBiggestPoint);
+            }
+            System.out.println(XValues);
+        } else {
+            System.out.println("Не удалось вычислить step из-за NaN значений.");
+        }
+        return XValues;
+    }
 
     public Line getLineByParameterId(Long id) {
 
@@ -33,7 +151,6 @@ public class GraphService {
         functionsCopy.forEach(f -> {
             collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
         });
-
 
 
         Optional<Double> smallestStartPoint = functionsCopy.stream()

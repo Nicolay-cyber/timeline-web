@@ -14,7 +14,14 @@ public class FullModelDto {
     private Long id;
     private String name;
     private String description;
+
     private List<ParameterDto> parameters = new ArrayList<>();
-    private List<Double> XValues = new ArrayList<>();
-    private List<LineDto> YValues = new ArrayList<>();
+
+    private ModelGraphDto modelGraphDto;
+    public FullModelDto(Long id, String name, String description, List<ParameterDto> parameters) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.parameters = parameters;
+    }
 }

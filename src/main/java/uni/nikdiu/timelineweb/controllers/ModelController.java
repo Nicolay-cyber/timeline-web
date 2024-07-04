@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import uni.nikdiu.timelineweb.convectors.ModelConvector;
 import uni.nikdiu.timelineweb.dtos.FullModelDto;
 import uni.nikdiu.timelineweb.dtos.ModelDto;
+import uni.nikdiu.timelineweb.entities.Model;
+import uni.nikdiu.timelineweb.services.GraphService;
 import uni.nikdiu.timelineweb.services.ModelService;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ModelController {
     private final ModelService modelService;
+    private final GraphService graphService;
     private final ModelConvector modelConvector;
 
     @GetMapping
@@ -29,7 +32,10 @@ public class ModelController {
     }
     @GetMapping("{id}")
     public FullModelDto getModelById(@PathVariable Long id) {
-        return modelConvector.toFullDto(modelService.getModelById(id));
+        Model model = modelService.getModelById(id);
+        FullModelDto fullModelDto = modelConvector.toFullDto(model);
+        fullModelDto.setModelGraphDto(graphService.getModelGraph(model));
+        return fullModelDto;
     }
 
 }

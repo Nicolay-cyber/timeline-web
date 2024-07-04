@@ -24,11 +24,11 @@ angular.module('timeline', [])
             const ctx = document.getElementById('modelChart').getContext('2d');
             const datasets = [];
 
-            model.yvalues.forEach(yvalue => {
+            model.modelGraphDto.yvalues.forEach(yvalue => {
                 datasets.push({
                     label: yvalue.parameterName,
                     data: yvalue.points.map((point, index) => ({
-                        x: model.xvalues[index],
+                        x: model.modelGraphDto.xvalues[index],
                         y: point
                     })),
                     borderColor: getRandomColor(),
@@ -39,7 +39,7 @@ angular.module('timeline', [])
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: model.xvalues,
+                    labels: model.modelGraphDto.xvalues,
                     datasets: datasets
                 },
                 options: {
