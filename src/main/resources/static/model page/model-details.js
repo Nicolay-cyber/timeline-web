@@ -1,6 +1,8 @@
 angular.module('timeline', [])
     .controller('modelDetailsController', function ($scope, $http, $location, $timeout) {
-        const contextPath = 'http://localhost:8189/timeline/api/v1';
+        //const contextPath = 'http://localhost:8189/timeline/api/v1';
+        const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+
         const searchParams = new URLSearchParams($location.absUrl().split('?')[1]);
         const modelId = searchParams.get('id');
 

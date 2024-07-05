@@ -1,8 +1,8 @@
 angular.module('timeline', ['ui.bootstrap']).controller('indexController', function ($scope, $http, $sce, $timeout) {
     // Set the context path based on the environment
-    //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+    const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
     //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
-    const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
+    //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
     // Function to load units of measurement
     $scope.loadUnits = function () {
