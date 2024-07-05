@@ -12,4 +12,12 @@ import java.util.List;
 public class ModelGraphDto {
     private List<Double> XValues = new ArrayList<>();
     private List<LineDto> YValues = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "ModelGraphDto:" +
+                "\n     XValues: " + XValues +
+                "\n     YValues: " + YValues
+                ;
+    }
 }

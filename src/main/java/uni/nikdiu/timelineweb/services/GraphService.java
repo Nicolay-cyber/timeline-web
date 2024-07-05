@@ -29,6 +29,7 @@ public class GraphService {
         Calculator calculator = new Calculator();
         List<Function> relatedFunctions = new ArrayList<>();
         List<Parameter> relatedParameters = new ArrayList<>();
+        List<LineDto> YValuesLines = new ArrayList<>();
         model.getParameters().forEach(parameter -> {
             if (!parameter.getPoints().isEmpty() && parameter.getPoints().size() > 1) {
                 addNewCreatedFunctionsFromParameterPoints(parameter);
@@ -39,40 +40,40 @@ public class GraphService {
                 collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
             });
 
+            List<Double> yValues = new ArrayList<>();
+            functionsCopy.forEach(function -> {
+                modelGraph.getXValues().forEach(x -> {
+                            if (x >= function.getStartPoint() && x <= function.getEndPoint()) {
+                                Double y = calculator.calculate(
+                                        Arrays.asList(function.getStringExpression().split(" ")),
+                                        relatedFunctions,
+                                        relatedParameters,
+                                        x
+                                );
+                                if (y != null && isValidNumber(y)) {
+                                    yValues.add(y);
+                                }
+                            }
+
+                        }
+                );
+            });
+
+            List<String> XValuesString = modelGraph.getXValues().stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+
+            YValuesLines.add(
+                    new LineDto(
+                            yValues,
+                            XValuesString,
+                            parameter.getName()
+                    )
+            );
 
         });
 
-        List<Double> XVal = List.of(100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0);
-        List<Double> YValues1 = List.of(860.0, 1140.0, 1060.0, 1060.0, 1070.0, 1110.0, 1330.0, 2210.0, 7830.0, 2478.0);
-        List<Double> YValues2 = List.of(1600.0, 1700.0, 1700.0, 1900.0, 2000.0, 2700.0, 4000.0, 5000.0, 6000.0, 7000.0);
-        List<Double> YValues3 = List.of(300.0, 700.0, 2000.0, 5000.0, 6000.0, 4000.0, 2000.0, 1000.0, 200.0, 100.0);
-
-        /*List<String> XValuesString = modelGraph.getXValues().stream()
-                .map(String::valueOf)
-                .collect(Collectors.toList());*/
-        
-        List<String> XValuesString = XVal.stream()
-                .map(String::valueOf)
-                .collect(Collectors.toList());
-        List<LineDto> YValues = List.of(
-                new LineDto(
-                        YValues1,
-                        XValuesString,
-                        "Red"
-                ),
-                new LineDto(
-                        YValues2,
-                        XValuesString,
-                        "Blue"
-                ),
-                new LineDto(
-                        YValues3,
-                        XValuesString,
-                        "Yellow"
-                )
-
-        );
-        modelGraph.setYValues(YValues);
+        modelGraph.setYValues(YValuesLines);
         return modelGraph;
     }
 
@@ -113,14 +114,10 @@ public class GraphService {
                 (Double.isNaN(biggestXPoint) ? biggestEndPoint :
                         Math.max(biggestEndPoint, biggestXPoint));
 
-        System.out.println("overallSmallestPoint: " + overallSmallestPoint);
-        System.out.println("overallBiggestPoint: " + overallBiggestPoint);
-
         List<Double> XValues = new ArrayList<>();
         if (!Double.isNaN(overallSmallestPoint) && !Double.isNaN(overallBiggestPoint)) {
             int pointAmount = 50;
             Double step = (overallBiggestPoint - overallSmallestPoint) / pointAmount;
-            System.out.println("step: " + step);
             double currentValue = smallestStartPoint;
             for (int i = 0; i < pointAmount; i++) {
                 XValues.add(currentValue);
@@ -131,7 +128,7 @@ public class GraphService {
             }
             System.out.println(XValues);
         } else {
-            System.out.println("Не удалось вычислить step из-за NaN значений.");
+            System.out.println("Failed to calculate step due to NaN values");
         }
         return XValues;
     }
@@ -151,7 +148,6 @@ public class GraphService {
         functionsCopy.forEach(f -> {
             collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
         });
-
 
         Optional<Double> smallestStartPoint = functionsCopy.stream()
                 .map(Function::getStartPoint)
