@@ -16,12 +16,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.lang.Double.NaN;
+
 @Service
 @RequiredArgsConstructor
 public class GraphService {
     private final ParameterService parameterService;
 
     public ModelGraphDto getModelGraph(Model model) {
+        model.getParameters().forEach(parameter -> {
+            if (!parameter.getPoints().isEmpty() && parameter.getPoints().size() > 1) {
+                addNewCreatedFunctionsFromParameterPoints(parameter);
+            }
+        });
         ModelGraphDto modelGraph = new ModelGraphDto();
         modelGraph.setXValues(getXValues(model));
 
@@ -31,42 +38,48 @@ public class GraphService {
         List<Parameter> relatedParameters = new ArrayList<>();
         List<LineDto> YValuesLines = new ArrayList<>();
         model.getParameters().forEach(parameter -> {
-            if (!parameter.getPoints().isEmpty() && parameter.getPoints().size() > 1) {
-                addNewCreatedFunctionsFromParameterPoints(parameter);
-            }
             List<Function> functionsCopy = new ArrayList<>(parameter.getFunctions());
-
             functionsCopy.forEach(f -> {
                 collectRelatedFunctionsAndParameters(f, relatedFunctions, relatedParameters, f.getStartPoint(), f.getEndPoint());
             });
-
+            Optional<Double> smallestStartPoint = functionsCopy.stream()
+                    .map(Function::getStartPoint)
+                    .min(Double::compareTo);
+            Optional<Double> biggestEndPoint = functionsCopy.stream()
+                    .map(Function::getEndPoint)
+                    .max(Double::compareTo);
             List<Double> yValues = new ArrayList<>();
-            functionsCopy.forEach(function -> {
-                modelGraph.getXValues().forEach(x -> {
-                            if (x >= function.getStartPoint() && x <= function.getEndPoint()) {
-                                Double y = calculator.calculate(
-                                        Arrays.asList(function.getStringExpression().split(" ")),
-                                        relatedFunctions,
-                                        relatedParameters,
-                                        x
-                                );
-                                if (y != null && isValidNumber(y)) {
-                                    yValues.add(y);
-                                }
-                            }
+            modelGraph.getXValues().forEach(x -> {
+                if (smallestStartPoint.isPresent() && x < smallestStartPoint.get() ||
+                        biggestEndPoint.isPresent() && x > biggestEndPoint.get()) {
+                    yValues.add(NaN);
+                } else {
+                    Optional<Function> optionalFunction = functionsCopy.stream()
+                            .filter(function -> x >= function.getStartPoint() && x <= function.getEndPoint())
+                            .findFirst();
 
+                    if (optionalFunction.isPresent()) {
+                        Function function = optionalFunction.get();
+                        Double y = calculator.calculate(
+                                Arrays.asList(function.getStringExpression().split(" ")),
+                                relatedFunctions,
+                                relatedParameters,
+                                x
+                        );
+                        if (y != null && isValidNumber(y)) {
+                            yValues.add(Math.round(y * 100.0) / 100.0);
                         }
-                );
-            });
+                    } else {
+                        yValues.add(NaN);
+                    }
 
-            List<String> XValuesString = modelGraph.getXValues().stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
+                }
+            });
 
             YValuesLines.add(
                     new LineDto(
                             yValues,
-                            XValuesString,
+                            new ArrayList<>(),
                             parameter.getName()
                     )
             );
@@ -74,6 +87,27 @@ public class GraphService {
         });
 
         modelGraph.setYValues(YValuesLines);
+        for (int i = modelGraph.getXValues().size() - 1; i >= 0; i--) {
+            boolean isXvalueEmpty = true;
+            for (LineDto line : modelGraph.getYValues()) {
+                if (i < line.getPoints().size() && !Double.isNaN(line.getPoints().get(i))) {
+                    isXvalueEmpty = false;
+                    break;
+                }
+            }
+            if (isXvalueEmpty) {
+                if (i < modelGraph.getXValues().size()) {
+                    modelGraph.getXValues().remove(i);
+                }
+                for (LineDto line : modelGraph.getYValues()) {
+                    if (i < line.getPoints().size()) {
+                        line.getPoints().remove(i);
+                    }
+                }
+            }
+        }
+
+
         return modelGraph;
     }
 
@@ -83,14 +117,14 @@ public class GraphService {
                         .map(Function::getStartPoint)
                         .filter(startPoint -> !Double.isNaN(startPoint)))
                 .min(Double::compare)
-                .orElse(Double.NaN);
+                .orElse(NaN);
 
         double smallestXPoint = model.getParameters().stream()
                 .flatMap(parameter -> parameter.getPoints().stream()
                         .map(Point::getX)
                         .filter(x -> !Double.isNaN(x)))
                 .min(Double::compare)
-                .orElse(Double.NaN);
+                .orElse(NaN);
 
         double overallSmallestPoint = Double.isNaN(smallestStartPoint) ? smallestXPoint :
                 (Double.isNaN(smallestXPoint) ? smallestStartPoint :
@@ -101,14 +135,14 @@ public class GraphService {
                         .map(Function::getEndPoint)
                         .filter(endPoint -> !Double.isNaN(endPoint)))
                 .max(Double::compare)
-                .orElse(Double.NaN);
+                .orElse(NaN);
 
         double biggestXPoint = model.getParameters().stream()
                 .flatMap(parameter -> parameter.getPoints().stream()
                         .map(Point::getX)
                         .filter(x -> !Double.isNaN(x)))
                 .max(Double::compare)
-                .orElse(Double.NaN);
+                .orElse(NaN);
 
         double overallBiggestPoint = Double.isNaN(biggestEndPoint) ? biggestXPoint :
                 (Double.isNaN(biggestXPoint) ? biggestEndPoint :
@@ -116,8 +150,13 @@ public class GraphService {
 
         List<Double> XValues = new ArrayList<>();
         if (!Double.isNaN(overallSmallestPoint) && !Double.isNaN(overallBiggestPoint)) {
-            int pointAmount = 50;
-            Double step = (overallBiggestPoint - overallSmallestPoint) / pointAmount;
+            int pointAmount = 200;
+            double step = (overallBiggestPoint - overallSmallestPoint) / pointAmount;
+            if (step > 1) {
+                step = Math.floor(step);
+            } else {
+                step = Math.round(step * 100.0) / 100.0;
+            }
             double currentValue = smallestStartPoint;
             for (int i = 0; i < pointAmount; i++) {
                 XValues.add(currentValue);
@@ -126,7 +165,6 @@ public class GraphService {
             if (!XValues.contains(overallBiggestPoint)) {
                 XValues.add(overallBiggestPoint);
             }
-            System.out.println(XValues);
         } else {
             System.out.println("Failed to calculate step due to NaN values");
         }
@@ -159,27 +197,54 @@ public class GraphService {
 
         double startPoint = smallestStartPoint.orElse(0.0);
         double endPoint = biggestEndPoint.orElse(0.0);
-        double step = (endPoint - startPoint) / 50;
-        List<Double> points = new ArrayList<>();
-        List<Double> labels = new ArrayList<>();
-        Calculator calculator = new Calculator();
 
-        functionsCopy.forEach(function -> {
-            for (Double i = function.getStartPoint(); i <= function.getEndPoint(); i += step) {
-                Double y = calculator.calculate(
-                        Arrays.asList(function.getStringExpression().split(" ")),
-                        relatedFunctions,
-                        relatedParameters,
-                        i
-                );
-                if (y != null && isValidNumber(y)) {
-                    points.add(y);
-                    labels.add(i);
+        int pointAmount = 100;
+        double step = ((endPoint - startPoint) / pointAmount);
+
+        if (step > 1) {
+            step = Math.floor(step);
+        } else {
+            step = Math.round(step * 100.0) / 100.0;
+        }
+
+        List<Double> yValues = new ArrayList<>();
+        List<Double> xValues = new ArrayList<>();
+        Calculator calculator = new Calculator();
+        double currentValue = startPoint;
+        for (int i = 0; i < pointAmount; i++) {
+            xValues.add(currentValue);
+            currentValue += step;
+        }
+        xValues.add(endPoint);
+
+        xValues.forEach(x -> {
+            if (x < startPoint || x > endPoint) {
+                yValues.add(NaN);
+            } else {
+                Optional<Function> optionalFunction = functionsCopy.stream()
+                        .filter(function -> x >= function.getStartPoint() && x <= function.getEndPoint())
+                        .findFirst();
+
+                if (optionalFunction.isPresent()) {
+                    Function function = optionalFunction.get();
+                    Double y = calculator.calculate(
+                            Arrays.asList(function.getStringExpression().split(" ")),
+                            relatedFunctions,
+                            relatedParameters,
+                            x
+                    );
+                    if (y != null && isValidNumber(y)) {
+                        yValues.add(Math.round(y * 100.0) / 100.0);
+                    }
+                } else {
+                    yValues.add(NaN);
                 }
+
             }
+
         });
 
-        Line line = new Line(targetParameter.getName(), points, labels);
+        Line line = new Line(targetParameter.getName(), yValues, xValues);
         System.out.println("Sent line:\n" + line);
         return line;
     }

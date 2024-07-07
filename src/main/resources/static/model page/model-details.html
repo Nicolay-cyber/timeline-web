@@ -50,6 +50,11 @@
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
         }
+        .chart-container{
+            padding: 20px;
+            background-color: #f7f7f7;
+            overflow: hidden;
+        }
     </style>
 
 </head>
@@ -64,8 +69,9 @@
 </script>
 
 <div class="container-fluid" ng-controller="modelDetailsController">
-
-    <canvas id="modelChart"></canvas>
+    <div class="chart-container">
+        <canvas id="modelChart"></canvas>
+    </div>
     <h1>{{model.name}}</h1>
     <div>
         <p> {{model.description}}</p>

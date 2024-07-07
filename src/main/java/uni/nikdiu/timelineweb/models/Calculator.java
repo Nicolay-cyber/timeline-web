@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+import static java.lang.Double.NaN;
+
 @Component
 @AllArgsConstructor
 public class Calculator {
@@ -33,7 +35,7 @@ public class Calculator {
                 }
             }
             if (token == null) {
-                return 0.0;
+                return NaN;
             }
             switch (token) {
                 case "+":

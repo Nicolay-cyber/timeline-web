@@ -33,6 +33,14 @@
     <link href="../styles.css" rel="stylesheet">
 
     <style>
+        .parameter-details,
+        .justify-content-between {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f7f7f7; /* Чтобы элемент не перекрывался фоном при прокрутке */
+        }
+
         .split-screen {
             display: flex;
             height: calc(100vh - 70px);

@@ -1,7 +1,7 @@
 angular.module('timeline', ['ui.bootstrap']).controller('indexController', function ($scope, $http, $sce, $timeout) {
     // Set the context path based on the environment
-    const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
-    //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
+    //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+    const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
     //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
     // Function to load units of measurement
@@ -221,7 +221,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
                 data: [], // Remove the 'label' field
                 backgroundColor: 'rgba(85, 85, 85, 0.2)', // Темно серый цвет с прозрачностью 0.2
                 borderColor: 'rgba(85, 85, 85, 1)', // Цвет линии графика
-                    }],
+            }],
         },
         options: {
             legend: {
@@ -229,6 +229,10 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             },
             scales: {
                 xAxes: [{
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 15
+                    },
                     scaleLabel: {
                         display: true,
                         labelString: 'X Axis Label' // Set default label for x-axis
@@ -243,7 +247,6 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             }
         }
     });
-
     // Function to load graph data for a parameter
     $scope.loadGraphData = function (parameter) {
         // Check if the new parameter is different from the current one

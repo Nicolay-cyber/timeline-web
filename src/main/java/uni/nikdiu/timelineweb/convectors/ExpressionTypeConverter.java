@@ -28,6 +28,7 @@ public class ExpressionTypeConverter {
         classicExpression = classicExpression.replaceAll("right}", "right\\)");
         classicExpression = classicExpression.replaceAll("left\\{", "left\\(");
         //    System.out.println("fix brackets " + classicExpression);
+        classicExpression = classicExpression.replaceAll("~", "-");
 
         classicExpression = classicExpression.replaceAll("\\s+", ""); // Удаление пробелов
         //System.out.println("Удаление пробелов " + classicExpression);
@@ -140,6 +141,8 @@ public class ExpressionTypeConverter {
         latexExpression = latexExpression.replaceAll("\\\\\\[", "");
         latexExpression = latexExpression.replaceAll("\\\\]", "");
 
+        latexExpression = latexExpression.replaceAll("-\\\\left\\(", " ~ \\\\left\\(");
+
         latexExpression = latexExpression.replaceAll("\\\\left\\(", " \\\\lb ");
         latexExpression = latexExpression.replaceAll("\\\\right\\)", " \\\\rb ");
 
@@ -172,6 +175,11 @@ public class ExpressionTypeConverter {
 
         latexExpression = latexExpression.replaceAll("\\\\ lb", " \\\\lb ");
         latexExpression = latexExpression.replaceAll("\\\\ rb", " \\\\rb ");
+        latexExpression = latexExpression.replaceAll("sin", " sin ");
+        latexExpression = latexExpression.replaceAll("cos", " cos ");
+        latexExpression = latexExpression.replaceAll("tan", " tan ");
+        latexExpression = latexExpression.replaceAll("log", " log ");
+        latexExpression = latexExpression.replaceAll("root", " root ");
 
         while (latexExpression.contains("  ")) {
             latexExpression = latexExpression.replaceAll(" {2}", " ");

@@ -1,7 +1,8 @@
 angular.module('timeline', [])
     .controller('modelDetailsController', function ($scope, $http, $location, $timeout) {
+        const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
         //const contextPath = 'http://localhost:8189/timeline/api/v1';
-        const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
+        //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
 
         const searchParams = new URLSearchParams($location.absUrl().split('?')[1]);
         const modelId = searchParams.get('id');
@@ -45,11 +46,26 @@ angular.module('timeline', [])
                     datasets: datasets
                 },
                 options: {
+                    legend: {
+                        display: true // Disable legend display
+                    },
                     scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom'
-                        }
+                        xAxes: [{
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 25
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'X Axis Label' // Set default label for x-axis
+                            }
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Y Axis Label' // Set default label for y-axis
+                            }
+                        }]
                     }
                 }
             });
