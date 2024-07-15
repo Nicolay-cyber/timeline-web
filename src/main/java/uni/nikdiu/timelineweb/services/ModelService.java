@@ -28,4 +28,8 @@ public class ModelService {
     public Collection<Object> getAllModelsWithParameter(Parameter   parameter) {
         return modelRepository.getAllByParameters(parameter);
     }
+
+    public void deleteById(Long id) {
+        modelRepository.deleteById(id);
+    }
 }

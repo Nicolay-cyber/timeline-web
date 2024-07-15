@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML"></script>
 
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 
@@ -50,10 +51,28 @@
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
         }
-        .chart-container{
+
+        .chart-container {
             padding: 20px;
             background-color: #f7f7f7;
             overflow: hidden;
+        }
+        .expression {
+            text-align: left;
+        }
+        .btn-danger:hover,
+        .btn-primary:hover {
+            background-color: #777 !important; /* Lighter by one level */
+            border-color: #777 !important;
+        }
+
+        .btn-link i {
+            color: #555 !important; /* Dark grey color */
+            font-size: 1.2rem; /* Icon size (optional) */
+        }
+
+        .btn-link:hover i {
+            color: #777 !important; /* Lighter by one level on hover */
         }
     </style>
 
@@ -67,12 +86,23 @@
         $("#navbar-placeholder").load("../navbar.html");
     });
 </script>
-
 <div class="container-fluid" ng-controller="modelDetailsController">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>{{model.name}}</h1>
+        <div>
+            <button class="btn btn-link" ng-click="editParameter(currentParameter.id)" title="Edit">
+                <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn btn-link" ng-click="deleteModel()"
+                    title="Delete">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="chart-container">
         <canvas id="modelChart"></canvas>
     </div>
-    <h1>{{model.name}}</h1>
     <div>
         <p> {{model.description}}</p>
         <h3>Parameters:</h3>
@@ -95,7 +125,7 @@
                 <ul>
                     <li ng-repeat="func in parameter.functions">
                         <p><strong>Interval:</strong> {{func.startPoint}} - {{func.endPoint}}</p>
-                        <p>{{func.expression}}</p>
+                        <p class="expression">{{func.expression}}</p>
                     </li>
                 </ul>
             </div>

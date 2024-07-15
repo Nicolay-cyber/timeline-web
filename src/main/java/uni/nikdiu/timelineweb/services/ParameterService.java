@@ -42,6 +42,7 @@ public class ParameterService {
     @Transactional
     public void deleteParameter(Long id) {
         Parameter parameter = getParameterById(id);
+        System.out.println("Deleting of parameter: " + parameter);
         List<Model> models = modelService.getAllModelsWithParameter(parameter).stream().map(object -> (Model) object).toList();
         //remove the parameter from all models
         for (Model model : models) {
@@ -61,7 +62,7 @@ public class ParameterService {
         parameterRepository.delete(parameter);
         Optional<Parameter> removedParameter = parameterRepository.findById(parameter.getId());
         if (removedParameter.isEmpty()) {
-            System.out.println("Parameter removed");
+            System.out.println("Parameter has been removed");
         } else {
             System.out.println("Parameter is not removed");
         }

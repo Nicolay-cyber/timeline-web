@@ -1,5 +1,5 @@
 angular.module('timeline', [])
-    .controller('modelDetailsController', function ($scope, $http, $location, $timeout) {
+    .controller('modelDetailsController', function ($scope, $http, $location, $timeout, $window) {
         const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
         //const contextPath = 'http://localhost:8189/timeline/api/v1';
         //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
@@ -14,7 +14,17 @@ angular.module('timeline', [])
                     drawChart($scope.model);
 
                     $timeout(function () {
-                        MathJax.typesetPromise();
+                        // Настройка MathJax
+                        MathJax.Hub.Config({
+                            tex2jax: {
+                                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+                            },
+                            "HTML-CSS": {scale: 100},
+                            displayAlign: "left",
+                            displayIndent: "2em"
+                        });
+                        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
                     });
 
                 });
@@ -80,4 +90,13 @@ angular.module('timeline', [])
             return color;
         }
 
+        $scope.deleteModel = function () {
+            if (confirm('Are you sure you want to delete this model?')) {
+                $http.delete(contextPath + '/models/' + $scope.model.id).then(function () {
+                    console.log('model deleted successfully');
+                    $('#confirmDeleteModal').modal('hide');
+                    $window.location.href = `models.html`;
+                });
+            }
+        };
     });
