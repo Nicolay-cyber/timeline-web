@@ -15,6 +15,13 @@ public class LineDto {
     private List<String> labels = new ArrayList<>();
 
     private String parameterName;
+    private UnitDto unit;
+
+    public LineDto(List<Double> points, List<String> labels, String parameterName) {
+        this.points = points;
+        this.labels = labels;
+        this.parameterName = parameterName;
+    }
 
     @Override
     public String toString() {

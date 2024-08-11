@@ -63,15 +63,8 @@ public class ParameterController {
     public ResponseEntity<ParameterDto> editParameter(@PathVariable Long id, @RequestBody ParameterDto parameterDto) {
         System.out.println("Received request to update parameterDto: " + parameterDto);
 
-        Map<FunctionDto, List<Parameter>> relatedParameters = parameterDto.getFunctions().stream().collect(Collectors.toMap(f ->
-                        f,
-                f -> {
-                    return findAllRelatedParameters(f);
-                }
-        ));
-
-        Parameter parameter = parameterConvector.toEntity(parameterDto, relatedParameters);
-        System.out.println("intermediate: "+ parameter);
+        Parameter parameter = parameterConvector.toEntity(parameterDto, parameterService);
+        System.out.println("intermediate: " + parameter);
         parameter = parameterService.updateParameter(id, parameter);
 
         System.out.println("Parameter successfully updated: ");
@@ -79,38 +72,12 @@ public class ParameterController {
         return ResponseEntity.ok(parameterConvector.toDto(parameter));
     }
 
-    private List<Parameter> findAllRelatedParameters(FunctionDto f) {
-        System.out.println();
-        System.out.println("findAllRelatedParameters ");
-        ExpressionTypeConverter expressionConvector = new ExpressionTypeConverter();
-        String newExpression = expressionConvector.latexToClassic(f.getTagParamExpression());
-        List<String> expressionList = Arrays.asList(newExpression.split(" "));
-        List<Parameter> relatedParameters = new ArrayList<>();
-        System.out.println("f.getTagParamExpression() " + f.getTagParamExpression());
-        System.out.println("newExpression " + newExpression);
-        System.out.println("expressionList " + expressionList);
-
-        expressionList.forEach(token -> {
-            if (token.startsWith("@") && !token.equals("@time")) {
-                relatedParameters.add(parameterService.getParameterByTag(token));
-            }
-        });
-        return relatedParameters;
-    }
-
     @PostMapping()
     public ParameterDto addParameter(@RequestBody ParameterDto parameterDto) {
 
         System.out.println("Received request to save parameter: " + parameterDto);
 
-        Map<FunctionDto, List<Parameter>> relatedParameters = parameterDto.getFunctions().stream().collect(Collectors.toMap(f ->
-                        f,
-                f -> {
-                    return findAllRelatedParameters(f);
-                }
-        ));
-
-        Parameter parameter = parameterConvector.toEntity(parameterDto, relatedParameters);
+        Parameter parameter = parameterConvector.toEntity(parameterDto, parameterService);
 
         parameter = parameterService.save(parameter);
 

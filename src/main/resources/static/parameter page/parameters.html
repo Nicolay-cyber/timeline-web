@@ -162,7 +162,7 @@
 
     <script>
         $(function () {
-            $("#navbar-placeholder").load("../navbar.html");
+            $("#navbar-placeholder").load("../common/navbar.html");
         });
     </script>
 
@@ -203,7 +203,7 @@
                         <div class="parameter-tag">{{currentParameter.tag}}</div>
                     </h4>
                     <div>
-                        <button class="btn btn-link" ng-click="editParameter(currentParameter.id)" title="Edit">
+                        <button class="btn btn-link" ng-click="editParameter()" title="Edit">
                             <i class="fas fa-pen"></i>
                         </button>
                         <button class="btn btn-link" ng-click="confirmDeleteParameter(currentParameter.id)"
@@ -241,41 +241,9 @@
             </div>
         </div>
     </div>
-    <!-- Modal for confirming parameter deletion -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog"
-         aria-labelledby="confirmDeleteModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Parameter Deletion</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>The following functions will be deleted along with this parameter:</p>
-                    <ul class="list-group">
-                        <li ng-repeat="func in dependentFunctions" class="list-group-item">
-                            <div>
-                                <p>Parent Parameter Name: {{func.parentParameterName}}</p>
-                                <p>Interval: {{func.startPoint}} - {{func.endPoint}}</p>
-                                <div class="math-container" ng-bind-html="renderMath(func.expression)"></div>
-                            </div>
-                            <!-- Add a separator between list items -->
-                            <hr ng-if="!$last">
-                        </li>
-                    </ul>
-                    <p>Are you sure you want to proceed?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" ng-click="deleteParameter()">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
+
+    <div ng-include="'../common/deleteParameterConformationModal.html'"></div>
     <!-- Modal for adding and editing new parameter -->
     <div class="modal fade" id="addParameterModal" tabindex="-1" role="dialog" aria-labelledby="addParameterModalLabel"
          aria-hidden="true">
@@ -434,26 +402,9 @@
             </div>
         </div>
     </div>
-    <!-- Error Modal -->
-    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Please fill in the required fields: Name, Abbreviation, and Unit of Measurement.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div ng-include="'../common/errorParameterSave.html'"></div>
+
+
 </div>
 
 </body>

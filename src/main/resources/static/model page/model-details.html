@@ -7,7 +7,10 @@
     <title>Timeline | Model Details</title>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+    <!--for chart zooming-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 
@@ -57,9 +60,41 @@
             background-color: #f7f7f7;
             overflow: hidden;
         }
+
         .expression {
             text-align: left;
         }
+        .parameters-title{
+            padding-right: 15px;
+        }
+        /* Стили для списка точек */
+        /* Стили для горизонтального списка точек */
+        .points-horizontal-list {
+            list-style-type: none; /* Убираем стандартные маркеры */
+            padding-left: 0; /* Убираем отступ слева */
+            margin: 0; /* Убираем внешние отступы */
+            display: flex; /* Используем Flexbox для горизонтального расположения */
+            flex-wrap: wrap; /* Позволяет переносить элементы на следующую строку при необходимости */
+        }
+
+        .points-horizontal-list li {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-right: 10px; /* Отступ между элементами */
+            margin-bottom: 10px; /* Отступ снизу для переноса строк */
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .points-horizontal-list p {
+            margin: 0;
+        }
+
+
         .btn-danger:hover,
         .btn-primary:hover {
             background-color: #777 !important; /* Lighter by one level */
@@ -74,6 +109,67 @@
         .btn-link:hover i {
             color: #777 !important; /* Lighter by one level on hover */
         }
+        /* Основные стили для модального окна */
+        .modal-body {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        /* Разделители между секциями */
+        .modal-section {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Заголовки секций */
+        .modal-section h5 {
+            margin-bottom: 10px;
+            font-size: 1.25rem;
+            color: #333;
+        }
+
+        /* Поля ввода */
+        .form-control {
+            margin-bottom: 10px;
+        }
+        /* Стили для элемента списка параметров */
+        .parameter-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Информация о параметре и значок урны */
+        .parameter-info {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        /* Значок урны справа */
+        .parameter-item .btn-link {
+            margin-left: auto;
+            font-size: 1.2rem;
+            color: #e74c3c;
+        }
+
+        /* Описание параметра */
+        .parameter-description {
+            margin-top: 5px;
+            color: #555;
+        }
+
+        /* Выпадающее меню для параметров */
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
     </style>
 
 </head>
@@ -83,45 +179,50 @@
 
 <script>
     $(function () {
-        $("#navbar-placeholder").load("../navbar.html");
+        $("#navbar-placeholder").load("../common/navbar.html");
     });
 </script>
 <div class="container-fluid" ng-controller="modelDetailsController">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>{{model.name}}</h1>
         <div>
-            <button class="btn btn-link" ng-click="editParameter(currentParameter.id)" title="Edit">
+            <button class="btn btn-link" ng-click="editModel(model)" title="Edit model">
                 <i class="fas fa-pen"></i>
             </button>
             <button class="btn btn-link" ng-click="deleteModel()"
-                    title="Delete">
+                    title="Delete model">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
     </div>
 
+    <div >
+        <p ng-bind-html="model.description | nl2br"></p>
+    </div>
     <div class="chart-container">
         <canvas id="modelChart"></canvas>
     </div>
     <div>
-        <p> {{model.description}}</p>
-        <h3>Parameters:</h3>
-        <div ng-repeat="parameter in model.parameters" class="parameter-container">
-            <div class="parameter-header">
-                <h4>{{parameter.name}} ({{parameter.abbreviation}})</h4>
+        <div class="parameters-title d-flex justify-content-between align-items-center mb-3">
+            <h3><strong>Parameters</strong></h3>
+        </div>
+        <div ng-repeat="parameter in model.parameters" class="parameter-container" ng-init="testId = parameter.id">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4><strong>{{parameter.name}}</strong> ({{parameter.abbreviation}})</h4>
             </div>
             <p><strong>Unit:</strong> {{parameter.unit.name}} ({{parameter.unit.abbreviation}})</p>
             <p>{{parameter.description}}</p>
             <div ng-if="parameter.points.length">
-                <h5>Points:</h5>
-                <ul>
+                <h5><strong>Points</strong></h5>
+                <ul class="points-horizontal-list">
                     <li ng-repeat="point in parameter.points">
                         <p>({{point.x}}, {{point.y}})</p>
                     </li>
                 </ul>
             </div>
+
             <div ng-if="parameter.functions.length">
-                <h5>Functions:</h5>
+                <h5><strong>Functions</strong></h5>
                 <ul>
                     <li ng-repeat="func in parameter.functions">
                         <p><strong>Interval:</strong> {{func.startPoint}} - {{func.endPoint}}</p>
@@ -130,6 +231,73 @@
                 </ul>
             </div>
         </div>
+    </div>
+    <!-- Modal для редактирования модели -->
+    <div class="modal fade" id="editModelModal" tabindex="-1" role="dialog" aria-labelledby="editModelModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModelModalLabel">Edit Model</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form name="editModelForm">
+                        <!-- Секция для имени модели -->
+                        <div class="modal-section">
+                            <h5>Name</h5>
+                            <input type="text" class="form-control" id="modelName" ng-model="editableModel.name" required>
+                        </div>
+
+                        <!-- Секция для описания модели -->
+                        <div class="modal-section">
+                            <h5>Description</h5>
+                            <textarea class="form-control" id="modelDescription" ng-model="editableModel.description" rows="3" required></textarea>
+                        </div>
+
+                        <!-- Секция для поиска параметров -->
+
+                        <div class="modal-section">
+                            <h5>Search Parameters</h5>
+                            <input type="text" class="form-control" id="parameterSearch" ng-model="searchQuery" ng-change="filterParameters()" placeholder="Type tag to search...">
+                            <ul class="list-group mt-2" ng-show="filteredParameters.length > 0">
+                                <li class="list-group-item" ng-repeat="parameter in filteredParameters" ng-click="addParameter(parameter)">
+                                    <strong>{{parameter.name}}</strong> ({{parameter.tag}}): {{parameter.description}}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Секция для списка параметров -->
+                        <div class="modal-section">
+                            <h5>Parameters</h5>
+                            <ul class="list-unstyled">
+                                <li ng-repeat="parameter in editableModel.parameters" class="parameter-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="parameter-info flex-grow-1">
+                                            <strong>{{parameter.name}}</strong> ({{parameter.tag}})
+                                        </div>
+                                        <button class="btn btn-link" ng-click="removeParameter(parameter)" title="Remove parameter">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <p class="parameter-description">{{parameter.description}}</p>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="saveModel()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
     </div>
 </div>
 

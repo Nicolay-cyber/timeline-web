@@ -1,8 +1,9 @@
-angular.module('timeline', ['ui.bootstrap']).controller('indexController', function ($scope, $http, $sce, $timeout) {
+angular.module('timeline', ['ui.bootstrap'])
+    .controller('indexController', function ($scope, $http, $sce, $timeout) {
     // Set the context path based on the environment
     //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office
-    const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
-    //const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
+    //const contextPath = 'http://192.168.0.157:8189/timeline/api/v1'; // for home
+    const contextPath = 'http://localhost:8189/timeline/api/v1'; // for offline
 
     // Function to load units of measurement
     $scope.loadUnits = function () {
@@ -169,7 +170,7 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
         });
     };
 
-    $scope.editParameter = function (parameterId) {
+    $scope.editParameter = function () {
         $scope.isEditing = true; // Set editing flag
         $scope.newParameter = angular.copy($scope.currentParameter);
         $('#addParameterModal').modal('show');
@@ -295,6 +296,8 @@ angular.module('timeline', ['ui.bootstrap']).controller('indexController', funct
             }
         }
     });
+
+
     $scope.loadParameters();
     $scope.loadUnits();
 

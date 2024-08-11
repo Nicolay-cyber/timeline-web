@@ -10,16 +10,17 @@ import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Parameter;
 import uni.nikdiu.timelineweb.entities.Point;
 import uni.nikdiu.timelineweb.entities.Unit;
+import uni.nikdiu.timelineweb.services.ParameterService;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ParameterConvector {
     FunctionConvector functionConvector;
     PointConvector pointConvector;
     UnitConvector unitConvector;
+    ParameterService parameterService;
 
     public ParameterDto toDto(Parameter parameter) {
         functionConvector = new FunctionConvector();
@@ -43,9 +44,18 @@ public class ParameterConvector {
                 points);
     }
 
-    public Parameter toEntity(ParameterDto parameterDto, Map<FunctionDto, List<Parameter>> relatedParameters) {
+    public Parameter toEntity(ParameterDto parameterDto, ParameterService parameterService) {
         unitConvector = new UnitConvector();
         functionConvector = new FunctionConvector();
+        pointConvector = new PointConvector();
+        this.parameterService = parameterService;
+
+        Map<FunctionDto, List<Parameter>> relatedParameters = parameterDto.getFunctions().stream().collect(Collectors.toMap(f ->
+                        f,
+                f -> {
+                    return findAllRelatedParameters(f);
+                }
+        ));
 
         Unit unit = unitConvector.toEntity(parameterDto.getUnit());
 
@@ -69,5 +79,22 @@ public class ParameterConvector {
         parameter.setPoints(points);
         return parameter;
     }
+    private List<Parameter> findAllRelatedParameters(FunctionDto f) {
+        System.out.println();
+        System.out.println("findAllRelatedParameters ");
+        ExpressionTypeConverter expressionConvector = new ExpressionTypeConverter();
+        String newExpression = expressionConvector.latexToClassic(f.getTagParamExpression());
+        List<String> expressionList = Arrays.asList(newExpression.split(" "));
+        List<Parameter> relatedParameters = new ArrayList<>();
+        System.out.println("f.getTagParamExpression() " + f.getTagParamExpression());
+        System.out.println("newExpression " + newExpression);
+        System.out.println("expressionList " + expressionList);
 
+        expressionList.forEach(token -> {
+            if (token.startsWith("@") && !token.equals("@time")) {
+                relatedParameters.add(parameterService.getParameterByTag(token));
+            }
+        });
+        return relatedParameters;
+    }
 }

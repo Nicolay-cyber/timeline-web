@@ -2,6 +2,7 @@ package uni.nikdiu.timelineweb.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import uni.nikdiu.timelineweb.convectors.UnitConvector;
 import uni.nikdiu.timelineweb.dtos.*;
 import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Model;
@@ -22,6 +23,7 @@ import static java.lang.Double.NaN;
 @RequiredArgsConstructor
 public class GraphService {
     private final ParameterService parameterService;
+    private final UnitConvector unitConvector;
 
     public ModelGraphDto getModelGraph(Model model) {
         model.getParameters().forEach(parameter -> {
@@ -80,7 +82,8 @@ public class GraphService {
                     new LineDto(
                             yValues,
                             new ArrayList<>(),
-                            parameter.getName()
+                            parameter.getName(),
+                            unitConvector.toDto(parameter.getUnit())
                     )
             );
 

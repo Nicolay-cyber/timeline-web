@@ -2,15 +2,11 @@ package uni.nikdiu.timelineweb.convectors;
 
 import org.springframework.stereotype.Component;
 import uni.nikdiu.timelineweb.dtos.*;
-import uni.nikdiu.timelineweb.entities.Function;
 import uni.nikdiu.timelineweb.entities.Model;
 import uni.nikdiu.timelineweb.entities.Parameter;
-import uni.nikdiu.timelineweb.entities.Point;
-import uni.nikdiu.timelineweb.services.GraphService;
+import uni.nikdiu.timelineweb.services.ParameterService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ModelConvector {
@@ -32,9 +28,10 @@ public class ModelConvector {
         );
     }
 
-    public Model toEntity(FullModelDto modelDto) {
+    public Model toEntity(FullModelDto modelDto, ParameterService parameterService) {
         List<Parameter> parameters = modelDto.getParameters().stream()
-                .map(parameterDto -> new ParameterConvector().toEntity(parameterDto, null)).toList();
+                .map(parameterDto -> new ParameterConvector().toEntity(parameterDto, parameterService)).toList();
+
         return new Model(
                 modelDto.getId(),
                 modelDto.getName(),

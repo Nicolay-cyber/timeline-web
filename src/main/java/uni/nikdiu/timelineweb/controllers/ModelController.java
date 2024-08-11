@@ -49,6 +49,16 @@ public class ModelController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<FullModelDto> updateModel(@PathVariable Long id, @RequestBody FullModelDto fullModelDto) {
+        System.out.println("Received request to update Model:\n"  + fullModelDto);
+
+        Model model = modelConvector.toEntity(fullModelDto, parameterService);
+        model = modelService.update(id, model);
+
+        System.out.println("Model successfully updated:\n"+ model);
+        return ResponseEntity.ok(modelConvector.toFullDto(model));
+    }
 
 
 }

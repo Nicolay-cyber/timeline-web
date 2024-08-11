@@ -32,5 +32,5 @@ public class Model {
             joinColumns = @JoinColumn(name = "model_id"),
             inverseJoinColumns = @JoinColumn(name = "parameter_id")
     )
-    private List<Parameter> parameters = new ArrayList<>();
+    private List<Parameter> parameters;
 }
