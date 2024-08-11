@@ -183,7 +183,6 @@
 
                 <tbody>
                 <tr ng-repeat="s in ParametersList" ng-click="loadGraphData(s)" data-id="{{s.id}}">
-                    <!-- <td>{{s.tag}}</td>-->
                     <td>{{s.name}}<br>
                         <div class="parameter-tag">{{s.tag}}</div>
                     </td>
@@ -219,7 +218,10 @@
 
             <div id="parameterDetails">
                 <div class="parameter-details">
-                    <p>{{ currentParameter.description }}</p>
+                <div>
+                    <p ng-bind-html="currentParameter.description | nl2br"></p>
+                </div>
+
                     <h4 ng-if="currentParameter.points && currentParameter.points.length > 0">Points</h4>
                     <div id="pointsList" class="d-flex flex-wrap"
                          ng-if="currentParameter.points && currentParameter.points.length > 0">

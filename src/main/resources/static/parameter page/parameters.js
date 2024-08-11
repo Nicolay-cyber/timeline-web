@@ -1,4 +1,19 @@
 angular.module('timeline', ['ui.bootstrap'])
+    .filter('nl2br', function($sce) {
+        return function(text) {
+            if (!text) return text;
+
+            // Заменяем пробелы в начале строк на неразрывные пробелы
+            const formattedText = text.replace(/(^|\n)(\s+)/g, function(match, p1, p2) {
+                return p1 + p2.replace(/ /g, '&nbsp;');
+            });
+
+            // Заменяем символы новой строки на <br>
+            const newText = formattedText.replace(/\n/g, '<br/>');
+            return $sce.trustAsHtml(newText);
+        };
+    })
+
     .controller('indexController', function ($scope, $http, $sce, $timeout) {
     // Set the context path based on the environment
     //const contextPath = 'http://192.168.0.229:8189/timeline/api/v1'; // for office

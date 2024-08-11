@@ -1,0 +1,158 @@
+<!-- Modal for adding and editing new parameter -->
+<div class="modal fade" id="addParameterModal" tabindex="-1" role="dialog" aria-labelledby="addParameterModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addParameterModalLabel" ng-if="!isEditing">Add new parameter</h5>
+                <h5 class="modal-title" id="addParameterModalLabel" ng-if="isEditing">Edit parameter</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" ng-model="newParameter.id">
+                    <div class="form-group parameter-container">
+
+                        <div class="parameter-header">
+                            <label for="parameterName">Parameter name</label>
+                        </div>
+                        <input type="text" class="form-control" id="parameterName" ng-model="newParameter.name"
+                               required>
+                    </div>
+                    <div class="form-group parameter-container">
+
+                        <div class="parameter-header">
+                            <label for="parameterName">Parameter tag</label>
+                        </div>
+                        <input type="text" class="form-control" id="parameterTag" ng-model="newParameter.tag"
+                               required>
+                    </div>
+                    <div class="form-group parameter-container">
+                        <div class="parameter-header">
+                            <label for="parameterAbbreviation">Parameter abbreviation</label>
+                        </div>
+                        <input type="text" class="form-control" id="parameterAbbreviation"
+                               ng-model="newParameter.abbreviation" required>
+                    </div>
+                    <div class="form-group parameter-container">
+                        <div class="parameter-header">
+                            <label for="newParameterDescription">Description</label>
+                        </div>
+                        <textarea class="form-control" id="newParameterDescription" rows="3"
+                                  ng-model="newParameter.description"></textarea>
+                    </div>
+                    <div class="form-group parameter-container">
+                        <div class="parameter-header">
+                            <label for="newParameterUnit">Unit</label>
+                        </div>
+                        <input type="text" class="form-control" id="newParameterUnit"
+                               ng-model="newParameter.unit"
+                               placeholder="Begin typing the unit of measurement name"
+                               uib-typeahead="unit as unit.name + ' (' + unit.abbreviation + ')' for unit in units | filter:$viewValue | limitTo:8"
+                               typeahead-on-select="onSelectUnit($item, $model, $label)"
+                               typeahead-editable="false"
+                               typeahead-input-formatter="formatInput($model)">
+                    </div>
+                    <!-- Displaying the list of points -->
+                    <ul class="list-group mt-3 parameter-container">
+                        <div class="parameter-header">
+                            <label for="newParameterUnit">Parameter points</label>
+                        </div>
+                        <li class="list-group-item" ng-repeat="point in newParameter.points">
+                            <span>{{point.x}} , {{point.y}}</span>
+                            <button class="btn btn-link" title="Edit"
+                                    ng-click="editPoint($index)"><i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn btn-link" title="Delete"
+                                    ng-click="deletePoint($index)"><i class="fas fa-trash"></i>
+                            </button>
+                        </li>
+                    </ul>
+                    <!-- Point edit field -->
+                    <div class="parameter-container">
+                        <div class="parameter-header">
+                            <label>Create a new point</label>
+                        </div>
+                        <div class="form-group row">
+                            <label for="XPoint" class="col-sm-4 col-form-label">X point</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="XPoint"
+                                       ng-model="newPoint.x">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="YPoint" class="col-sm-4 col-form-label">Y point</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="YPoint"
+                                       ng-model="newPoint.y">
+                            </div>
+                        </div>
+                        <button id="addPointButton" class="btn btn-primary" type="button"
+                                ng-click="addPoint()">
+                            Add point
+                        </button>
+                    </div>
+
+                    <!-- Displaying the list of functions -->
+                    <ul class="list-group mt-3 parameter-container">
+                        <div class="parameter-header">
+                            <label for="newParameterUnit">Parameter functions</label>
+                        </div>
+                        <li class="list-group-item" ng-repeat="func in newParameter.functions">
+                            Interval: {{func.startPoint}} - {{func.endPoint}}<br>
+                            <span ng-bind-html="renderMath(func.tagParamExpression)"></span>
+                            <button class="btn btn-link" title="Edit"
+                                    ng-click="editFunction($index)"><i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn btn-link" title="Delete"
+                                    ng-click="deleteFunction($index)"><i class="fas fa-trash"></i>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Function edit field -->
+                    <div class="parameter-container">
+                        <div class="parameter-header">
+                            <label>Creating a new function</label>
+                        </div>
+                        <div class="form-group row">
+                            <label for="startPoint" class="col-sm-4 col-form-label">Start point</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="startPoint"
+                                       ng-model="newFunction.startPoint">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="endPoint" class="col-sm-4 col-form-label">End point</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="endPoint"
+                                       ng-model="newFunction.endPoint">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newFormulaField">Expression</label>
+                            <p><span id="newFormulaField" ng-model="newFunction.tagParamExpression">Type-here</span>
+                            </p>
+                        </div>
+                        <button id="addFunctionButton" class="btn btn-primary" type="button"
+                                ng-click="addFunction()">
+                            Add function
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="!isEditing">
+                    Add
+                </button>
+                <button type="button" class="btn btn-primary" ng-click="addParameter()" ng-if="isEditing">Save
+                    changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

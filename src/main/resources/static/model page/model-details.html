@@ -64,11 +64,69 @@
         .expression {
             text-align: left;
         }
-        .parameters-title{
+
+        .parameters-title {
             padding-right: 15px;
         }
-        /* Стили для списка точек */
-        /* Стили для горизонтального списка точек */
+
+        /* Основные стили для карточек параметров на основной странице */
+        .parameter-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #ffffff;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            /* Убираем фиксированную высоту */
+            height: auto;
+            max-width: 500px; /* Ограничение ширины карточек */
+            overflow: hidden; /* Убирает скролл и обрезает содержимое при необходимости */
+        }
+
+        /* Стили для математических формул */
+        .parameter-card .expression {
+            word-wrap: break-word; /* Позволяет длинным словам и формулам переноситься на следующую строку */
+            overflow-wrap: break-word; /* Обеспечивает перенос текста, если он выходит за пределы контейнера */
+            white-space: normal; /* Сбрасывает перенос строки, чтобы формулы не прерывались */
+        }
+
+        /* Заголовок карточки */
+        .parameter-card h4 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Стили для описания параметра внутри карточки */
+        .parameter-card p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        /* Кнопка удаления в карточке */
+        .parameter-card .btn-link {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            margin-left: auto; /* Выравнивание кнопки по правому краю */
+        }
+
+        /* Описание параметра */
+        .parameter-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Обертка для карточек параметров на основной странице */
+        .parameters-container {
+            display: flex;
+            flex-wrap: wrap; /* Позволяет карточкам переноситься на следующую строку */
+            gap: 15px; /* Отступы между карточками */
+            justify-content: flex-start; /* Выравнивание карточек по левому краю */
+        }
+
+        /* Дополнительные стили для горизонтального списка точек */
         .points-horizontal-list {
             list-style-type: none; /* Убираем стандартные маркеры */
             padding-left: 0; /* Убираем отступ слева */
@@ -78,7 +136,7 @@
         }
 
         .points-horizontal-list li {
-            padding: 10px;
+            padding: 5px 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
@@ -86,14 +144,16 @@
             margin-bottom: 10px; /* Отступ снизу для переноса строк */
             display: flex;
             align-items: center;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #333;
         }
 
-        .points-horizontal-list p {
-            margin: 0;
-        }
 
+        .btn-primary {
+            background-color: #555 !important;
+            border-color: #555 !important;
+            color: #fff; /* Button text color */
+        }
 
         .btn-danger:hover,
         .btn-primary:hover {
@@ -109,6 +169,7 @@
         .btn-link:hover i {
             color: #777 !important; /* Lighter by one level on hover */
         }
+
         /* Основные стили для модального окна */
         .modal-body {
             padding: 20px;
@@ -121,7 +182,7 @@
             padding: 10px;
             background-color: #ffffff;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Заголовки секций */
@@ -135,6 +196,7 @@
         .form-control {
             margin-bottom: 10px;
         }
+
         /* Стили для элемента списка параметров */
         .parameter-item {
             margin-bottom: 10px;
@@ -142,7 +204,7 @@
             background-color: #ffffff;
             border: 1px solid #ddd;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Информация о параметре и значок урны */
@@ -158,6 +220,12 @@
             color: #e74c3c;
         }
 
+        .parameter-tag {
+            color: #858585 !important; /* Dark grey color */
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
         /* Описание параметра */
         .parameter-description {
             margin-top: 5px;
@@ -168,6 +236,21 @@
         .dropdown-menu {
             max-height: 200px;
             overflow-y: auto;
+        }
+
+        .parameter-card h4 {
+            margin-top: 0;
+            margin-bottom: 0; /* Уменьшение отступа снизу */
+        }
+
+        .parameter-card h5 {
+            margin-top: 10px;
+        }
+
+        .parameter-card p {
+            margin-top: 0;
+            margin-bottom: 15px; /* Уменьшение отступа снизу */
+            font-size: 0.9rem; /* Уменьшение шрифта для единицы измерения */
         }
 
     </style>
@@ -196,7 +279,7 @@
         </div>
     </div>
 
-    <div >
+    <div>
         <p ng-bind-html="model.description | nl2br"></p>
     </div>
     <div class="chart-container">
@@ -206,34 +289,38 @@
         <div class="parameters-title d-flex justify-content-between align-items-center mb-3">
             <h3><strong>Parameters</strong></h3>
         </div>
-        <div ng-repeat="parameter in model.parameters" class="parameter-container" ng-init="testId = parameter.id">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4><strong>{{parameter.name}}</strong> ({{parameter.abbreviation}})</h4>
-            </div>
-            <p><strong>Unit:</strong> {{parameter.unit.name}} ({{parameter.unit.abbreviation}})</p>
-            <p>{{parameter.description}}</p>
-            <div ng-if="parameter.points.length">
-                <h5><strong>Points</strong></h5>
-                <ul class="points-horizontal-list">
-                    <li ng-repeat="point in parameter.points">
-                        <p>({{point.x}}, {{point.y}})</p>
-                    </li>
-                </ul>
-            </div>
+        <div class="parameters-container">
+            <div ng-repeat="parameter in model.parameters" class="parameter-card">
+                <h4>{{parameter.name}} ({{parameter.abbreviation}})</h4>
+                <div class="parameter-tag">{{parameter.tag}}</div>
 
-            <div ng-if="parameter.functions.length">
-                <h5><strong>Functions</strong></h5>
-                <ul>
-                    <li ng-repeat="func in parameter.functions">
-                        <p><strong>Interval:</strong> {{func.startPoint}} - {{func.endPoint}}</p>
-                        <p class="expression">{{func.expression}}</p>
-                    </li>
-                </ul>
+                <p><strong>Unit:</strong> {{parameter.unit.name}} ({{parameter.unit.abbreviation}})</p>
+                <div>
+                    <p class="parameter-description" ng-bind-html="parameter.description | nl2br"></p>
+                </div>
+                <div ng-if="parameter.points.length">
+                    <h5><strong>Points</strong></h5>
+                    <ul class="points-horizontal-list">
+                        <li ng-repeat="point in parameter.points">
+                            <p>({{point.x}}, {{point.y}})</p>
+                        </li>
+                    </ul>
+                </div>
+                <div ng-if="parameter.functions.length">
+                    <h5><strong>Functions</strong></h5>
+                    <ul>
+                        <li ng-repeat="func in parameter.functions">
+                            <p><strong>Interval:</strong> {{func.startPoint}} - {{func.endPoint}}</p>
+                            <p class="expression">{{func.expression}}</p>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
     <!-- Modal для редактирования модели -->
-    <div class="modal fade" id="editModelModal" tabindex="-1" role="dialog" aria-labelledby="editModelModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editModelModal" tabindex="-1" role="dialog" aria-labelledby="editModelModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -247,22 +334,26 @@
                         <!-- Секция для имени модели -->
                         <div class="modal-section">
                             <h5>Name</h5>
-                            <input type="text" class="form-control" id="modelName" ng-model="editableModel.name" required>
+                            <input type="text" class="form-control" id="modelName" ng-model="editableModel.name"
+                                   required>
                         </div>
 
                         <!-- Секция для описания модели -->
                         <div class="modal-section">
                             <h5>Description</h5>
-                            <textarea class="form-control" id="modelDescription" ng-model="editableModel.description" rows="3" required></textarea>
+                            <textarea class="form-control" id="modelDescription" ng-model="editableModel.description"
+                                      rows="3" required></textarea>
                         </div>
 
                         <!-- Секция для поиска параметров -->
 
                         <div class="modal-section">
                             <h5>Search Parameters</h5>
-                            <input type="text" class="form-control" id="parameterSearch" ng-model="searchQuery" ng-change="filterParameters()" placeholder="Type tag to search...">
+                            <input type="text" class="form-control" id="parameterSearch" ng-model="searchQuery"
+                                   ng-change="filterParameters()" placeholder="Type tag to search...">
                             <ul class="list-group mt-2" ng-show="filteredParameters.length > 0">
-                                <li class="list-group-item" ng-repeat="parameter in filteredParameters" ng-click="addParameter(parameter)">
+                                <li class="list-group-item" ng-repeat="parameter in filteredParameters"
+                                    ng-click="addParameter(parameter)">
                                     <strong>{{parameter.name}}</strong> ({{parameter.tag}}): {{parameter.description}}
                                 </li>
                             </ul>
@@ -277,7 +368,8 @@
                                         <div class="parameter-info flex-grow-1">
                                             <strong>{{parameter.name}}</strong> ({{parameter.tag}})
                                         </div>
-                                        <button class="btn btn-link" ng-click="removeParameter(parameter)" title="Remove parameter">
+                                        <button class="btn btn-link" ng-click="removeParameter(parameter)"
+                                                title="Remove parameter">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -298,7 +390,7 @@
 
 
 </div>
-    </div>
+</div>
 </div>
 
 </body>
