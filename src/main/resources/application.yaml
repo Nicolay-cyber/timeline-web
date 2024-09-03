@@ -22,6 +22,11 @@ server:
   port: 8189
   servlet:
     context-path: /timeline  # Контекстный путь сервлета
+# contextPath для домашней сети
+#contextPath: 'http://192.168.0.157:8189/timeline/api/v1'
+
+# contextPath для офиса
+contextPath: 'http://192.168.0.229:8189/timeline/api/v1'
 
 spring:
   h2:
